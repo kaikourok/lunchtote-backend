@@ -1,0 +1,51 @@
+[general]
+client-host      = "https://example.com"      # フロントエンドの公開URL
+server-host      = "https://api.example.com"  # バックエンドの公開URL
+port             = 9262                       # アプリケーションの動作ポート
+api-path         = ""                         # APIのベースURL
+upload-path      = "/uploaded-images"         # アップローダーの公開パス
+upload-directory = "/usr/src/uploaded-images" # アップローダーのディレクトリ
+
+[database]
+host     = "database"   # PostgreSQLの動作ホスト
+port     = 5432         # PostgreSQLの動作ポート
+name     = "lunchtote"  # PostgreSQLのデータベース名
+username = "lunchtote"  # PostgreSQLのユーザー名
+password = "dbpassword" # PostgreSQLの対象ユーザーのパスワード
+
+[session-store]
+host     = "store"                   # セッション管理用Redisの動作ホスト
+port     = 6379                      # セッション管理用Redisの動作ポート
+password = ""                        # セッション管理用Redisのパスワード
+
+[pubsub]
+host                 = "pubsub"              # PubSub用Redisの動作ホスト
+port                 = 6379                  # PubSub用Redisの動作ポート
+password             = ""                    # PubSub用Redisのパスワード
+notification-channel = "notification-stream" # PubSub用Pub/Subチャンネル名
+
+[session]
+name         = "session_lunchtote_" # セッション名 
+secret       = "session_secret_key" # セッションのシークレットキー
+redis-prefix = "lunchtote__"        # セッションがRedisに保存される際の接頭辞
+
+[email]
+name     = "Lunchtote"            # メールの送信者名
+address  = "no-reply@example.com" # 通知を行うメールアドレス
+password = "mailpassword"         # 通知を行うメールアドレスのパスワード
+
+smtphost        = "example.com" # SMTPサーバーのホスト名
+smtpport        = 587           # SMTPサーバーのポート
+connect-timeout = 10            # SMTPサーバーに接続する際のタイムアウト秒数
+send-timeout    = 30            # メールを送信する際のタイムアウト秒数
+
+confirm-path        = "/mail-confirm?code=" # フロントエンドのメールアドレス認証ページURLパス
+confirm-code-length = 32                    # メールアドレス認証コードの長さ 
+confirm-expire      = 60                    # メールアドレス認証コードの有効時間 (分)
+
+dkim-selector    = "mail" # DKIMのセレクタ
+dkim-private-key = """
+
+PRIVKEY HERE
+
+""" # DNSの公開鍵(TXTレコード内DKIM)に合わせた秘密鍵

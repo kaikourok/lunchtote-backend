@@ -1,0 +1,80 @@
+[general]
+character-list-items-per-page = 100 # 1ページあたりのキャラクター一覧表示数
+mails-per-page                = 20  # 1ページあたりのメール表示数
+notifications-per-page        = 100 # 1ページあたりの通知表示数
+forum-topics-per-page         = 20  # 1ページあたりのフォーラムトピック表示件数
+
+[validation]
+username-min-length = 4  # ユーザーIDの最小長（ここの設定は1未満だとエラー）
+username-max-length = 15 # ユーザーIDの最大長
+disallow-usernames  = [
+  "admin",
+  "reifier"
+] # Usernameに含むことのできない文字列（大文字小文字不問）
+
+[secure]
+max-age      = 1209600 # セッションの保持時間(秒数)
+token-length = 32      # CSRFトークンのトークン長
+bcrypt-cost  = 10      # bcryptのコスト
+frontend-hash-salt    = "hashsalt" # フロントエンドでのパスワードハッシュ化時のsalt フロントエンドと同じ値を使う
+frontend-hash-stretch = 1000       # フロントエンドでのハッシュ化時のstretch回数 フロントエンドと同じ値を使う
+notification-token-length = 32     # 通知トークンのトークン長
+
+password-reset-path        = "/reset-password-confirm?code=" # フロントエンドのパスワード再設定ページURLパス
+password-reset-code-length = 32                              # パスワード再設定コードの長さ
+password-reset-expire      = 60                              # パスワード再設定コードの有効時間 (分)
+
+forum-identifier-secret = "identifiersecret" # フォーラムの匿名投稿時IDのIPハッシュ化に用いるsalt
+
+[webhook]
+name       = "Lunchtote通知" # Webhook通知時の名前
+avatar-url = ""             # Webhook通知時のアイコンURL ""で受信側ユーザー設定デフォルト
+
+[administrator]
+initial-administrators = [ # 初期化時の管理キャラクター
+  #[characterId(string), password, name, nickname, username]
+  ["-1", "adminpassword", "管理者", "管理者", "administrator"]
+]
+
+[oauth]
+state-length     = 32                # OAuth 2.0で使用するstateの長さ
+verifier-length  = 43                # OAuth 2.0のPKCEで使用するcode_verifierの長さ（43～128）
+signin-url       = "/signin"         # ログインURL（ログイン失敗時に遷移）
+signed-in-uri    = "/home"           # ログイン後URL
+registered-uri   = "/settings/oauth" # OAuth登録後URL（登録完了、失敗時に遷移）
+
+[oauth.google]
+client-id     = "clientid"
+client-secret = "clientsecret"
+auth-url      = "https://accounts.google.com/o/oauth2/v2/auth"
+token-url     = "https://oauth2.googleapis.com/token"
+redirect-uri  = "/api/oauth/google/callback"
+user-data-url = "https://www.googleapis.com/oauth2/v3/userinfo"
+scopes        = ["openid"]
+
+[oauth.twitter]
+client-id     = "clientid"
+client-secret = "clientsecret"
+auth-url      = "https://twitter.com/i/oauth2/authorize"
+token-url     = "https://api.twitter.com/2/oauth2/token"
+redirect-uri  = "/api/oauth/twitter/callback"
+user-data-url = "https://api.twitter.com/2/users/me"
+scopes        = ["tweet.read", "users.read"]
+
+[notification]
+followed-template           = "{entry-number} {name}にフォローされました"        # フォローされたときの通知メッセージ {entry-number}が登録番号、{name}がキャラクターの短縮名に置換
+mail-template               = "{entry-number} {name}からの新しいメールがあります" # 新着メールの通知メッセージ {entry-number}が登録番号、{name}がキャラクターの短縮名に置換
+administrator-mail-template = "{name}からの新しいメールがあります"                # 管理者による新着メールの通知メッセージ {name}が送信時に設定した名前に置換
+
+[forum]
+initial-forum-groups = [
+  "General", "Discussion"
+]
+
+initial-forums = [
+  ["General", "初心者質問", "", "", ""],
+  ["General", "宣伝", "ゲーム内イベントなどを宣伝することができるフォーラムです", "", "SIGNED_IN"],
+  ["General", "不具合報告", "", "", "SIGNED_IN"],
+  ["General", "機能要望", "", "", "SIGNED_IN"],
+  ["Discussion", "雑談", "", "", ""],
+]

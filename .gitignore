@@ -1,0 +1,14 @@
+# go test -cにより生成されるバイナリ
+*.test
+
+# delveにより生成されるバイナリ
+__debug_bin
+
+# ビルドディレクトリ
+/build/
+
+# Go workspace用のファイル
+go.work
+
+# Airにより生成されるビルドエラーログ
+build-errors.log

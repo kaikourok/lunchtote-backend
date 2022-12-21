@@ -31,6 +31,11 @@ gen-buf:
 test:
 	go test -v ./...
 
+.PHONY: check
+check:
+	go vet ./...
+	staticcheck ./...
+
 .PHONY: init
 init:
 	make cli

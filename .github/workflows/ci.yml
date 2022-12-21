@@ -19,6 +19,9 @@ jobs:
       - name: インストール
         run: make dev-deps
 
+      - name: 静的チェック
+        run: make check
+
       - name: テスト
         run: make test
 

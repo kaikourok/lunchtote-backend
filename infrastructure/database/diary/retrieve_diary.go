@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/kaikourok/lunchtote-backend/entity/model"
-	diaryModel "github.com/kaikourok/lunchtote-backend/entity/model"
 )
 
 func (db *DiaryRepository) RetrieveDiary(characterId *int, targetId, nth int) (*model.Diary, error) {
@@ -49,7 +48,7 @@ func (db *DiaryRepository) RetrieveDiary(characterId *int, targetId, nth int) (*
 			diaries.character = $1 AND diaries.nth = $2;
 	`, targetId, nth)
 
-	var diary diaryModel.Diary
+	var diary model.Diary
 	err := row.Scan(
 		&diary.Author.Id,
 		&diary.Author.Name,

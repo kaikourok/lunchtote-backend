@@ -1,0 +1,30 @@
+name: test_and_build 
+
+on: [push]
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: setup
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19'
+          cache: true
+
+      - name: インストール
+        run: make dev-deps
+
+      - name: 静的チェック
+        run: make check
+
+      - name: テスト
+        run: make test
+
+      - name: ビルド
+        # cli がビルドできることを確認する
+        run: make cli

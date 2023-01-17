@@ -60,7 +60,7 @@ func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int
 	`, roomId, characterId)
 
 	var isInvited, isBanned bool
-	err = row.Scan(&isInvited, isBanned)
+	err = row.Scan(&isInvited, &isBanned)
 	if err != nil {
 		return nil, false, err
 	}
@@ -72,7 +72,7 @@ func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int
 	if isInvited {
 		roleType = "INVITED"
 	} else {
-		roleType = "MEMBER"
+		roleType = "VISITOR"
 	}
 
 	row = db.QueryRowx(`
@@ -85,7 +85,7 @@ func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int
 			delete_other_message,
 			create_children_room
 		FROM
-			rooms_role
+			rooms_roles
 		WHERE
 			room = $1 AND type = $2
 	`, roomId, roleType)
@@ -98,7 +98,7 @@ func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int
 		&permissions.DeleteOtherMessage,
 		&permissions.CreateChildrenRoom,
 	)
-	if err == nil {
+	if err != nil {
 		return nil, false, err
 	}
 

@@ -4,8 +4,8 @@ import "github.com/kaikourok/lunchtote-backend/entity/model"
 
 type roomRepository interface {
 	// ルーム取得
-	// TODO: SearchRoom
 	RetrieveOwnedRooms(characterId int) (rooms *[]model.RoomListItem, err error)
+	SearchRooms(characterId int, options *model.RoomSearchOptions) (rooms []model.RoomListItem, isContinue bool, err error)
 
 	// ルーム内処理関連
 	RetrieveRoomOwnPermissions(characterId int, roomId int) (permissions *model.RoomMemberPermission, banned bool, err error)
@@ -13,6 +13,13 @@ type roomRepository interface {
 	RetrieveRoomMessages(characterId int, options *model.RoomMessageRetrieveSettings) (messages *[]model.RoomMessage, isContinueFollowing, isContinuePrevious *bool, err error)
 	RetrieveRoomDetailData(characterId int, roomId int) (room *model.RoomDetailData, err error)
 	PostRoomMessage(characterId int, message *model.RoomPostMessage, uploadPath string) error
+
+	// メッセージ取得関連
+	AddRoomMessageFetchConfig(characterId int, config *model.RoomMessageFetchConfig) (configId int, err error)
+	DeleteRoomMessageFetchConfig(characterId, configId int) error
+	RenameRoomMessageFetchConfig(characterId, configId int, name string) error
+	RetrieveRoomMessageFetchConfig(characterId int) (configs *[]model.RoomMessageFetchConfig, err error)
+	UpdateRoomMessageFetchConfigOrders(characterId int, orders *[]model.RoomMessageFetchConfigOrder) error
 
 	// ルーム関連情報取得
 	RetrieveRoomTitle(roomId int) (title string, err error)

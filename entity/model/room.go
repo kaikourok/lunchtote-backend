@@ -156,5 +156,36 @@ type RoomMessageEditRequiredData struct {
 	Character struct {
 		Name string `json:"name"`
 	} `json:"character"`
-	Icons []Icon `json:"icons"`
+	Icons        []Icon                   `json:"icons"`
+	Lists        []ListOverview           `json:"lists"`
+	FetchConfigs []RoomMessageFetchConfig `json:"fetchConfigs"`
+}
+
+type RoomMessageFetchConfig struct {
+	Name         string  `json:"name"`
+	Category     string  `json:"category"`
+	Room         *int    `json:"room"`
+	Search       *string `json:"search"`
+	ReferRoot    *int    `json:"referRoot"`
+	List         *int    `json:"list"`
+	Character    *int    `json:"character"`
+	RelateFilter *bool   `json:"relateFilter"`
+	Children     *bool   `json:"children"`
+}
+
+type RoomMessageFetchConfigOrder struct {
+	Config int `json:"config"`
+	Order  int `json:"order"`
+}
+
+type RoomSearchOptions struct {
+	Title        string   `json:"title"`
+	Tags         []string `json:"tags"`
+	ExcludedTags []string `json:"excludedTags"`
+	Description  string   `json:"description"`
+	Order        string   `json:"order"`
+	Sort         string   `json:"sort"`
+	Participant  *string  `json:"participant"`
+	Offset       int      `json:"offset"`
+	Limit        int      `json:"limit"`
 }

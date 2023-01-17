@@ -11,7 +11,7 @@ import (
 
 func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPostMessage, uploadPath string) error {
 	return db.ExecTx(func(tx *sqlx.Tx) error {
-		relates := make([]int, 0, 16)
+		relates := make([]int32, 0, 16)
 		var referRoot *int
 		var userName string
 		if message.Refer != nil {
@@ -24,7 +24,7 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 						room,
 						relates
 					FROM
-						messages
+						rooms_messages
 					WHERE
 						id = $2
 				),
@@ -37,12 +37,9 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 					(SELECT refer_root FROM message),
 					EXISTS (SELECT * FROM follows WHERE follower = $1 AND followed = (SELECT character FROM message)),
 					EXISTS (SELECT * FROM follows WHERE followed = $1 AND follower = (SELECT character FROM message)),
-					EXISTS (
-						SELECT * FROM rooms_messages_recipients WHERE message = $2 AND character IN (SELECT * FROM invalid_list)
-					),
+					EXISTS (SELECT * FROM rooms_messages_recipients WHERE message = $2 AND character IN (SELECT * FROM invalid_list)),
 					(SELECT reply_permission FROM message),
-					(SELECT nickname FROM characters WHERE character_id = $1),
-					(SELECT room FROM message),
+					(SELECT nickname FROM characters WHERE id = $1),
 					(SELECT character FROM message),
 					(SELECT relates FROM message);
 			`, characterId, message.Refer)
@@ -89,6 +86,7 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 				tx.Rollback()
 				return errors.New("返信を送る権限がありません")
 			}
+
 		} else if message.DirectReply != nil {
 			row := tx.QueryRowx(`
 				SELECT
@@ -114,18 +112,31 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 				return errors.New("返信先が存在しません")
 			}
 
-			relates = append(relates, *message.DirectReply)
+			relates = append(relates, int32(*message.DirectReply))
+		}
+
+		permissions, banned, err := db.RetrieveRoomOwnPermissions(characterId, message.Room)
+		if err != nil {
+			return err
+		}
+
+		if banned || !permissions.Write {
+			return errors.New("指定のルームで発言を行う権限がありません")
+		}
+
+		if !permissions.UseReply {
+			return errors.New("指定のルームで返信を行う権限がありません")
 		}
 
 		found := false
 		for i := range relates {
-			if relates[i] == characterId {
+			if relates[i] == int32(characterId) {
 				found = true
 				break
 			}
 		}
 		if !found {
-			relates = append(relates, characterId)
+			relates = append(relates, int32(characterId))
 		}
 
 		row := tx.QueryRowx(`
@@ -179,7 +190,7 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 		)
 
 		var messageId int
-		err := row.Scan(&messageId)
+		err = row.Scan(&messageId)
 		if err != nil {
 			return err
 		}

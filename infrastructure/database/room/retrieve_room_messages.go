@@ -148,7 +148,7 @@ func (db *RoomRepository) RetrieveRoomMessages(characterId int, options *model.R
 			`
 		case "character":
 			sql += `
-				messages.character = :target AND
+				messages.character = :target_id AND
 			`
 		case "character-replied":
 			sql += `

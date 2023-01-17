@@ -34,6 +34,24 @@ func (u *RoomController) RetrieveRoomMessages(c *gin.Context) {
 		}
 	}
 
+	if param := c.Query("list"); param != "" {
+		if list, err := strconv.Atoi(param); err == nil {
+			options = append(options, room.RetrieveRoomMessagesOptionListId(&list))
+		}
+	}
+
+	if param := c.Query("character"); param != "" {
+		if character, err := strconv.Atoi(param); err == nil {
+			options = append(options, room.RetrieveRoomMessagesOptionTargetCharacterId(&character))
+		}
+	}
+
+	if param := c.Query("root"); param != "" {
+		if referRoot, err := strconv.Atoi(param); err == nil {
+			options = append(options, room.RetrieveRoomMessagesOptionReferRoot(&referRoot))
+		}
+	}
+
 	if param := c.Query("relates"); param != "" {
 		options = append(options, room.RetrieveRoomMessagesOptionRelateFilter(param == "true"))
 	}

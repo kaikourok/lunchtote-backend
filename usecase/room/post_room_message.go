@@ -29,7 +29,8 @@ func (s *RoomUsecase) PostRoomMessage(characterId int, message *model.RoomPostMe
 
 	permissions, banned, err := repository.RetrieveRoomOwnPermissions(characterId, message.Room)
 	if err != nil {
-		return usecaseErrors.ErrValidate
+		logger.Error(err)
+		return err
 	}
 	if banned {
 		return errors.New("BANされています")

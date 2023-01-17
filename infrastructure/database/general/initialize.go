@@ -81,6 +81,20 @@ func (db *GeneralRepository) Initialize() error {
       'CLOSE'
     );
 
+    CREATE TYPE message_fetch_config_category AS ENUM (
+      'all',
+      'follow',
+      'follow-other',
+      'replied',
+      'replied-other',
+      'own',
+      'conversation',
+      'search',
+      'list',
+      'character',
+      'character-replied'
+    );
+
     CREATE TABLE game_status (
 			nth INT NOT NULL DEFAULT 0
 		);
@@ -437,6 +451,23 @@ func (db *GeneralRepository) Initialize() error {
       character INT    NOT NULL REFERENCES characters(id)
     );
     CREATE UNIQUE INDEX ON rooms_messages_recipients(message, character);
+
+    CREATE TABLE message_fetch_configs (
+      id            SERIAL NOT NULL PRIMARY KEY,
+      master        INT    NOT NULL REFERENCES characters(id),
+      config_order  INT    NOT NULL,
+      name          TEXT   NOT NULL,
+      room          INT,
+      search        TEXT,
+      refer_root    INT,
+      list          INT,
+      character     INT,
+      relate_filter BOOLEAN,
+      children      BOOLEAN,
+      category      message_fetch_config_category NOT NULL
+    );
+    CREATE INDEX ON message_fetch_configs(master);
+    CREATE INDEX ON message_fetch_configs(config_order);
 
     CREATE TABLE notifications (
       id             SERIAL    NOT NULL PRIMARY KEY,

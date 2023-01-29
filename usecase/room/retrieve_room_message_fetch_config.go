@@ -2,7 +2,7 @@ package room
 
 import "github.com/kaikourok/lunchtote-backend/entity/model"
 
-func (s *RoomUsecase) RetrieveRoomMessageFetchConfig(characterId int) (configs *[]model.RoomMessageFetchConfig, err error) {
+func (s *RoomUsecase) RetrieveRoomMessageFetchConfig(characterId int) (configs *[]model.RoomMessageFetchConfigWithId, err error) {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 

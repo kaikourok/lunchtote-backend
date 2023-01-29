@@ -76,7 +76,7 @@ func RetrieveRoomMessagesOptionChildren(children bool) RetrieveRoomMessagesOptio
 	}
 }
 
-func (s *RoomUsecase) RetrieveRoomMessages(characterId int, options ...RetrieveRoomMessagesOption) (messages *[]model.RoomMessage, isContinuePrevious, isContinueFollowing *bool, err error) {
+func (s *RoomUsecase) RetrieveRoomMessages(characterId int, options ...RetrieveRoomMessagesOption) (messages *[]model.RoomMessage, isContinueFollowing, isContinuePrevious *bool, err error) {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 
@@ -126,7 +126,7 @@ func (s *RoomUsecase) RetrieveRoomMessages(characterId int, options ...RetrieveR
 		}
 	}
 
-	messages, isContinuePrevious, isContinueFollowing, err = repository.RetrieveRoomMessages(characterId, option)
+	messages, isContinueFollowing, isContinuePrevious, err = repository.RetrieveRoomMessages(characterId, option)
 	if err != nil {
 		logger.Error(err)
 		return nil, nil, nil, err

@@ -35,23 +35,40 @@ func (db *RoomRepository) RetrieveRoomMembers(userId, roomId int) (members *[]mo
 		SELECT
 			characters.id,
 			characters.name,
-			characters.mainicon
-			JSON_AGG(JSON_BUILD_OBJECT(
-				'id',   rooms_roles.id,
-				'name', rooms_roles_members.
-			))
+			characters.mainicon,
+			(
+				SELECT
+					JSON_AGG(r.obj)
+				FROM
+					(
+						SELECT
+							JSON_BUILD_OBJECT(
+								'id',   rooms_roles.id,
+								'name', rooms_roles.name,
+								'type', rooms_roles.type
+							) AS obj
+						FROM
+							rooms_roles_members
+						JOIN
+							rooms_roles ON (rooms_roles.room = $1 AND rooms_roles_members.role = rooms_roles.id)
+						WHERE
+							rooms_roles_members.character = characters.id
+						ORDER BY
+							rooms_roles.priority DESC
+					) r
+			)
 		FROM
 			rooms_members
 		JOIN
-			characters ON (rooms_members.character = characters.id AND rooms_members.room = $1)
-		LEFT JOIN
-			rooms_roles_members ON (rooms_members.character = rooms_roles_members.character)
-		LEFT JOIN
-			rooms_roles ON (rooms_roles_members.role = rooms_roles)
+			characters ON (rooms_members.member = characters.id AND rooms_members.room = $1)
 		WHERE
 			rooms_members.room = $1
+		GROUP BY
+			characters.id,
+			characters.name,
+			characters.mainicon
 		ORDER BY
-			rooms_members.id;
+			characters.id;
 	`, roomId)
 
 	if err != nil {

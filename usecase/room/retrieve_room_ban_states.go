@@ -6,20 +6,29 @@ import (
 	"github.com/kaikourok/lunchtote-backend/usecase/errors"
 )
 
-func (s *RoomUsecase) RetrieveRoomBanStates(roomId int) (states *[]model.RoomBanState, master int, err error) {
+func (s *RoomUsecase) RetrieveRoomBanStates(characterId, roomId int) (states *[]model.RoomBanState, err error) {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 
 	err = validation.Validate(roomId, validation.Min(1))
 	if err != nil {
-		return nil, 0, errors.ErrValidate
+		return nil, errors.ErrValidate
 	}
 
-	states, master, err = repository.RetrieveRoomBanStates(roomId)
+	permissions, _, banned, err := repository.RetrieveRoomOwnPermissions(characterId, roomId)
 	if err != nil {
 		logger.Error(err)
-		return nil, 0, err
+		return nil, err
+	}
+	if banned || !permissions.Ban {
+		return nil, errors.ErrPermission
 	}
 
-	return states, master, nil
+	states, err = repository.RetrieveRoomBanStates(roomId)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	return states, nil
 }

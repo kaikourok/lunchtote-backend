@@ -409,7 +409,7 @@ func (db *GeneralRepository) Initialize() error {
       role      INT    NOT NULL REFERENCES rooms_roles(id),
       character INT    NOT NULL REFERENCES characters(id)
     );
-    CREATE INDEX ON rooms_roles_members(role, character);
+    CREATE UNIQUE INDEX ON rooms_roles_members(role, character);
     CREATE INDEX ON rooms_roles_members(role);
     CREATE INDEX ON rooms_roles_members(character);
 

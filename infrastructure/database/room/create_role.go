@@ -42,7 +42,8 @@ func (db *RoomRepository) CreateRole(characterId, roomId int, roleName string, r
 				invite,
 				use_reply,
 				use_secret,
-				delete_other_message
+				delete_other_message,
+				create_children_room
 			) VALUES (
 				$1,
 				(SELECT priority + 1 FROM rooms_roles WHERE room = $1 ORDER BY priority DESC LIMIT 1),
@@ -52,7 +53,8 @@ func (db *RoomRepository) CreateRole(characterId, roomId int, roleName string, r
 				$5,
 				$6,
 				$7,
-				$8
+				$8,
+				$9
 			)
 			RETURNING
 				rooms_roles.id;
@@ -65,6 +67,7 @@ func (db *RoomRepository) CreateRole(characterId, roomId int, roleName string, r
 			role.UseReply,
 			role.UseSecret,
 			role.DeleteOtherMessage,
+			role.CreateChildrenRoom,
 		)
 
 		err = row.Scan(&roleId)

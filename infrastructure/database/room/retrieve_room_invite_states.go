@@ -2,17 +2,16 @@ package room
 
 import "github.com/kaikourok/lunchtote-backend/entity/model"
 
-func (db *RoomRepository) RetrieveRoomInviteStates(roomId int) (states *[]model.RoomInviteState, master int, err error) {
+func (db *RoomRepository) RetrieveRoomInviteStates(roomId int) (states *[]model.RoomInviteState, err error) {
 	rows, err := db.Queryx(`
 		SELECT
-			(SELECT master FROM rooms WHERE id = $1),
 			invited_character.id,
 			invited_character.name,
 			invited_character.mainicon,
 			inviter_character.id,
 			inviter_character.name,
 			inviter_character.mainicon,
-			rooms_invited_character.invited_at
+			rooms_invited_characters.invited_at
 		FROM
 			rooms_invited_characters
 		JOIN
@@ -23,10 +22,10 @@ func (db *RoomRepository) RetrieveRoomInviteStates(roomId int) (states *[]model.
 			rooms_invited_characters.room = $1
 		ORDER BY
 			rooms_invited_characters.invited_at DESC;
-	`)
+	`, roomId)
 
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -43,11 +42,11 @@ func (db *RoomRepository) RetrieveRoomInviteStates(roomId int) (states *[]model.
 			&state.InvitedAt,
 		)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
 
 		statesSlice = append(statesSlice, state)
 	}
 
-	return &statesSlice, 0, nil
+	return &statesSlice, nil
 }

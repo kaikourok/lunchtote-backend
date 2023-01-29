@@ -6,7 +6,7 @@ import (
 	usecaseErrors "github.com/kaikourok/lunchtote-backend/usecase/errors"
 )
 
-func (s *RoomUsecase) RetrieveRoomInviteStates(characterId, roomId int) (states *[]model.RoomInviteState, err error) {
+func (s *RoomUsecase) RetrieveRoomInviteSuggestions(characterId int, searchText string, roomId int) (suggestions *model.CharacterSuggestions, err error) {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 
@@ -17,18 +17,17 @@ func (s *RoomUsecase) RetrieveRoomInviteStates(characterId, roomId int) (states 
 
 	permissions, _, banned, err := repository.RetrieveRoomOwnPermissions(characterId, roomId)
 	if err != nil {
-		logger.Error(err)
 		return nil, err
 	}
 	if banned || !permissions.Invite {
 		return nil, usecaseErrors.ErrPermission
 	}
 
-	states, err = repository.RetrieveRoomInviteStates(roomId)
+	suggestionsData, err := repository.RetrieveRoomInviteSuggestions(characterId, searchText, roomId)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
 	}
 
-	return states, nil
+	return suggestionsData.ToDomain(), nil
 }

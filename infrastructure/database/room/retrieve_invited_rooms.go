@@ -5,7 +5,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (db *RoomRepository) RetrieveOwnedRooms(characterId int) (rooms *[]model.RoomListItem, err error) {
+func (db *RoomRepository) RetrieveInvitedRooms(characterId int) (rooms *[]model.RoomListItem, err error) {
 	rows, err := db.Queryx(`
 		SELECT
 			rooms.id,
@@ -23,10 +23,11 @@ func (db *RoomRepository) RetrieveOwnedRooms(characterId int) (rooms *[]model.Ro
 			rooms
 		JOIN
 			characters ON (rooms.master = characters.id)
+		JOIN
+			rooms_invited_characters ON (rooms.id = rooms_invited_characters.room AND rooms_invited_characters.invited = $1)
 		LEFT JOIN
 			rooms_tags ON (rooms.id = rooms_tags.room)
 		WHERE
-			rooms.master = $1 AND
 			rooms.deleted_at IS NULL
 		GROUP BY
 			rooms.id,

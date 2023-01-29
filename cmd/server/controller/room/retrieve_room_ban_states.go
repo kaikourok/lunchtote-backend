@@ -17,14 +17,9 @@ func (u *RoomController) RetrieveRoomBanStates(c *gin.Context) {
 		return
 	}
 
-	states, master, err := u.usecase.RetrieveRoomBanStates(roomId)
+	states, err := u.usecase.RetrieveRoomBanStates(session.Get("cid").(int), roomId)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	if master != session.Get("cid").(int) {
-		c.Status(http.StatusForbidden)
 		return
 	}
 

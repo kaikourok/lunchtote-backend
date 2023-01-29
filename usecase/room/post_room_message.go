@@ -27,20 +27,32 @@ func (s *RoomUsecase) PostRoomMessage(characterId int, message *model.RoomPostMe
 		return usecaseErrors.ErrValidate
 	}
 
-	permissions, banned, err := repository.RetrieveRoomOwnPermissions(characterId, message.Room)
+	permissions, roleType, banned, err := repository.RetrieveRoomOwnPermissions(characterId, message.Room)
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
-	if banned {
-		return errors.New("BANされています")
+
+	if banned || !permissions.Write {
+		return errors.New("指定のルームで発言を行う権限がありません")
 	}
 
-	if !permissions.Write {
-		return errors.New("書き込み権限がありません")
+	if (message.Refer != nil || message.DirectReply != nil) && !permissions.UseReply {
+		return errors.New("指定のルームで返信を行う権限がありません")
 	}
 
-	err = repository.PostRoomMessage(characterId, message, config.GetString("upload-path"))
+	if message.Secret && !permissions.UseSecret {
+		return errors.New("指定のルームでは秘話を使用できません")
+	}
+
+	if roleType != "MASTER" && roleType != "MEMBER" {
+		err = repository.JoinToRoom(characterId, message.Room)
+		if err != nil {
+			logger.Error(err)
+			return err
+		}
+	}
+
+	err = repository.PostRoomMessage(characterId, message, config.GetString("general.upload-path"))
 	if err != nil {
 		logger.Error(err)
 		return err

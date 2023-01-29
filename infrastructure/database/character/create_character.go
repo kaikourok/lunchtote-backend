@@ -46,6 +46,41 @@ func (db *CharacterRepository) CreateCharacter(name, nickname, username, passwor
 			return err
 		}
 
+		_, err = tx.Exec(`
+			INSERT INTO message_fetch_configs (
+				master,
+				config_order,
+				name,
+				category,
+				relate_filter,
+				children
+			) VALUES (
+				$1,
+				0,
+				'全体',
+				'all',
+				true,
+				true
+			), (
+				$1,
+				1,
+				'フォロー',
+				'follow',
+				true,
+				true
+			), (
+				$1,
+				2,
+				'返信',
+				'replied',
+				true,
+				true
+			);
+		`, id)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 

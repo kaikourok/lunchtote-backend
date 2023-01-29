@@ -5,10 +5,12 @@ import "github.com/kaikourok/lunchtote-backend/entity/model"
 type roomRepository interface {
 	// ルーム取得
 	RetrieveOwnedRooms(characterId int) (rooms *[]model.RoomListItem, err error)
+	RetrieveMemberRooms(characterId int) (rooms *[]model.RoomListItem, err error)
+	RetrieveInvitedRooms(characterId int) (rooms *[]model.RoomListItem, err error)
 	SearchRooms(characterId int, options *model.RoomSearchOptions) (rooms []model.RoomListItem, isContinue bool, err error)
 
 	// ルーム内処理関連
-	RetrieveRoomOwnPermissions(characterId int, roomId int) (permissions *model.RoomMemberPermission, banned bool, err error)
+	RetrieveRoomOwnPermissions(characterId int, roomId int) (permissions *model.RoomMemberPermission, roleType string, banned bool, err error)
 	RetrieveRoomRelations(roomId int) (relations *model.RoomRelations, err error)
 	RetrieveRoomMessages(characterId int, options *model.RoomMessageRetrieveSettings) (messages *[]model.RoomMessage, isContinueFollowing, isContinuePrevious *bool, err error)
 	RetrieveRoomDetailData(characterId int, roomId int) (room *model.RoomDetailData, err error)
@@ -30,7 +32,7 @@ type roomRepository interface {
 	RetrieveChildrenCreatableRooms(characterId int) (rooms *[]model.RoomOverview, err error)
 
 	// 設定関連
-	RetrieveRoomRoleSettings(roomId int) (roles *[]model.RoomRoleWithMembers, master int, title string, err error)
+	RetrieveRoomRoleSettings(roomId int) (roles []model.RoomRole, master int, err error)
 	RetrieveRoomGeneralSettings(roomId int) (room *model.Room, masterCharacter int, err error)
 
 	// メンバー関連
@@ -39,14 +41,16 @@ type roomRepository interface {
 	// BAN関連
 	BanCharacterFromRoom(userId, targetId, roomId int) error
 	CancelBanCharacterFromRoom(userId, targetId, roomId int) error
-	RetrieveRoomBanStates(roomId int) (states *[]model.RoomBanState, master int, err error)
+	RetrieveRoomBanStates(roomId int) (states *[]model.RoomBanState, err error)
 
 	// 招待関連
 	InviteCharacterToRoom(userId, targetId, roomId int) error
 	CancelInviteCharacterToRoom(userId, targetId, roomId int) error
-	RetrieveRoomInviteStates(roomId int) (states *[]model.RoomInviteState, master int, err error)
+	RetrieveRoomInviteStates(roomId int) (states *[]model.RoomInviteState, err error)
+	RetrieveRoomInviteSuggestions(characterId int, searchText string, roomId int) (suggestions *model.CharacterSuggestionsData, err error)
 
 	// ロール設定関連
+	JoinToRoom(targetId, roomId int) error
 	CreateRole(characterId, roomId int, roleName string, role *model.RoomRolePermission) (roleId int, err error)
 	DeleteRole(characterId, roleId int) error
 	UpdateRolePermissions(characterId, roleId int, roleName string, role *model.RoomRolePermission) error

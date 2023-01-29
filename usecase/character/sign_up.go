@@ -60,6 +60,7 @@ func (s *CharacterUsecase) SignUp(name, nickname, username, password string, ema
 	notificationToken := secure.GenerateSecureRandomHex(config.GetInt("secure.notification-token-length"))
 	id, err = repository.CreateCharacter(name, nickname, username, cryptedPassword, notificationToken)
 	if err != nil {
+		logger.Error(err)
 		return 0, err
 	}
 

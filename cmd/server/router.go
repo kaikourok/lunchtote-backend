@@ -166,6 +166,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 			roomsGroup.POST("", middleware.Auth(), room.CreateRoom)
 			roomsGroup.GET("/create-data", middleware.Auth(), room.RetrieveRoomCreateData)
 			roomsGroup.GET("/owned", middleware.Auth(), room.RetrieveOwnedRooms)
+			roomsGroup.GET("/membered", middleware.Auth(), room.RetrieveMemberRooms)
 			roomsGroup.GET("/messages", middleware.Auth(), room.RetrieveRoomMessages)
 			roomsGroup.GET("/message-edit-data", middleware.Auth(), room.RetrieveRoomMessageEditRequiredData)
 			roomsGroup.POST("/search", middleware.Auth(), room.SearchRooms)
@@ -188,7 +189,6 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 				{
 					controlGroup := roomGroup.Group("control")
 					controlGroup.GET("/general", middleware.Auth(), room.RetrieveRoomGeneralSettings)
-					controlGroup.GET("/role", middleware.Auth(), room.RetrieveRoomRoleSettings)
 					controlGroup.GET("/members", middleware.Auth(), room.RetrieveRoomMembers)
 					controlGroup.GET("/invite", middleware.Auth(), room.RetrieveRoomInviteStates)
 					controlGroup.GET("/ban", middleware.Auth(), room.RetrieveRoomBanStates)
@@ -199,9 +199,16 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					controlGroup.POST("/cancel-invite", middleware.Auth(), room.CancelInviteCharacterToRoom)
 					controlGroup.POST("/cancel-ban", middleware.Auth(), room.CancelBanCharacterFromRoom)
 					controlGroup.POST("/delete", middleware.Auth(), room.DeleteRoom)
-					controlGroup.POST("/role/create", middleware.Auth(), room.CreateRole)
-					controlGroup.POST("/role/delete", middleware.Auth(), room.DeleteRole)
-					controlGroup.POST("/role/update-priorities", middleware.Auth(), room.UpdateRolePriorities)
+					controlGroup.POST("/search-invite-target", middleware.Auth(), room.RetrieveRoomInviteSuggestions)
+
+					{
+						roleGroup := controlGroup.Group("role")
+						roleGroup.GET("", middleware.Auth(), room.RetrieveRoomRoleSettings)
+						roleGroup.POST("/create", middleware.Auth(), room.CreateRole)
+						roleGroup.POST("/delete", middleware.Auth(), room.DeleteRole)
+						roleGroup.POST("/:role/update", middleware.Auth(), room.UpdateRolePermissions)
+						roleGroup.POST("/update-priorities", middleware.Auth(), room.UpdateRolePriorities)
+					}
 				}
 			}
 		}

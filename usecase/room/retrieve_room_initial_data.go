@@ -36,7 +36,7 @@ func (s *RoomUsecase) RetrieveRoomInitialData(characterId, roomId int) (title st
 	}()
 
 	go func() {
-		permissions, banned, err := repository.RetrieveRoomOwnPermissions(characterId, roomId)
+		permissions, _, banned, err := repository.RetrieveRoomOwnPermissions(characterId, roomId)
 		permissionsChannnel <- permissionsResultStruct{permissions, banned, err}
 	}()
 

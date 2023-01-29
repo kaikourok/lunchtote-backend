@@ -3,7 +3,6 @@ package room
 import (
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/kaikourok/lunchtote-backend/entity/model"
-	"github.com/kaikourok/lunchtote-backend/usecase/errors"
 	usecaseErrors "github.com/kaikourok/lunchtote-backend/usecase/errors"
 )
 
@@ -22,7 +21,7 @@ func (s *RoomUsecase) RetrieveRoomInviteStates(characterId, roomId int) (states 
 		return nil, err
 	}
 	if banned || !permissions.Invite {
-		return nil, errors.ErrPermission
+		return nil, usecaseErrors.ErrPermission
 	}
 
 	states, err = repository.RetrieveRoomInviteStates(roomId)

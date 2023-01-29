@@ -17,14 +17,13 @@ func (u *RoomController) RetrieveRoomRoleSettings(c *gin.Context) {
 		return
 	}
 
-	roles, title, err := u.usecase.RetrieveRoomRoleSettings(session.Get("cid").(int), roomId)
+	roles, err := u.usecase.RetrieveRoomRoleSettings(session.Get("cid").(int), roomId)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"title": title,
 		"roles": roles,
 	})
 }

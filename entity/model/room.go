@@ -38,13 +38,15 @@ type RoomListItem struct {
 		Id   int    `json:"id"`
 		Name string `json:"name"`
 	} `json:"master"`
-	Title         string    `json:"title"`
-	Summary       string    `json:"summary"`
-	Tags          []string  `json:"tags"`
-	Official      bool      `json:"official"`
-	MessagesCount int       `json:"messagesCount"`
-	MembersCount  int       `json:"membersCount"`
-	LastUpdate    time.Time `json:"lastUpdate"`
+	Title           string              `json:"title"`
+	Summary         string              `json:"summary"`
+	Tags            []string            `json:"tags"`
+	Official        bool                `json:"official"`
+	MessagesCount   int                 `json:"messagesCount"`
+	MembersCount    int                 `json:"membersCount"`
+	LastUpdate      time.Time           `json:"lastUpdate"`
+	PostsPerDay     float64             `json:"postsPerDay"`
+	FollowedMembers []CharacterOverview `json:"followedMembers,omitempty"`
 }
 
 type RoomRolePermission struct {
@@ -83,11 +85,7 @@ type RoomRolePriority struct {
 type RoomRoleOverview struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
-}
-
-type RoomRoleWithMembers struct {
-	RoomRole
-	Members []CharacterOverview `json:"members"`
+	Type string `json:"type"`
 }
 
 type RomeMemberWithRoles struct {
@@ -102,9 +100,9 @@ type RoomInviteState struct {
 }
 
 type RoomBanState struct {
-	Banned   CharacterOverview `json:"invited"`
-	Banner   CharacterOverview `json:"inviter"`
-	BannedAt time.Time         `json:"invitedAt"`
+	Banned   CharacterOverview `json:"banned"`
+	Banner   CharacterOverview `json:"banner"`
+	BannedAt time.Time         `json:"bannedAt"`
 }
 
 type RoomMessage struct {

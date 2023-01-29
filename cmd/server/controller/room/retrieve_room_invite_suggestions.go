@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (u *RoomController) RetrieveRoomInviteStates(c *gin.Context) {
+func (u *RoomController) RetrieveRoomInviteSuggestions(c *gin.Context) {
 	session := sessions.Default(c)
 
 	roomId, err := strconv.Atoi(c.Param("id"))
@@ -17,11 +17,20 @@ func (u *RoomController) RetrieveRoomInviteStates(c *gin.Context) {
 		return
 	}
 
-	states, err := u.usecase.RetrieveRoomInviteStates(session.Get("cid").(int), roomId)
+	var payload struct {
+		Text string `json:"text"`
+	}
+
+	err = c.BindJSON(&payload)
+	if err != nil {
+		return
+	}
+
+	results, err := u.usecase.RetrieveRoomInviteSuggestions(session.Get("cid").(int), payload.Text, roomId)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, states)
+	c.JSON(http.StatusOK, results)
 }

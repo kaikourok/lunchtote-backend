@@ -1,18 +1,19 @@
 package room
 
-import "github.com/kaikourok/lunchtote-backend/entity/model"
+import (
+	"github.com/kaikourok/lunchtote-backend/entity/model"
+)
 
-func (db *RoomRepository) RetrieveRoomBanStates(roomId int) (states *[]model.RoomBanState, master int, err error) {
+func (db *RoomRepository) RetrieveRoomBanStates(roomId int) (states *[]model.RoomBanState, err error) {
 	rows, err := db.Queryx(`
 		SELECT
-			(SELECT master FROM rooms WHERE id = $1),
 			banned_character.id,
 			banned_character.name,
 			banned_character.mainicon,
 			banner_character.id,
 			banner_character.name,
 			banner_character.mainicon,
-			rooms_banned_character.banned_at
+			rooms_banned_characters.banned_at
 		FROM
 			rooms_banned_characters
 		JOIN
@@ -23,10 +24,9 @@ func (db *RoomRepository) RetrieveRoomBanStates(roomId int) (states *[]model.Roo
 			rooms_banned_characters.room = $1
 		ORDER BY
 			rooms_banned_characters.banned_at DESC;
-	`)
-
+	`, roomId)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -44,11 +44,11 @@ func (db *RoomRepository) RetrieveRoomBanStates(roomId int) (states *[]model.Roo
 			&state.BannedAt,
 		)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
 
 		statesSlice = append(statesSlice, state)
 	}
 
-	return &statesSlice, 0, nil
+	return &statesSlice, nil
 }

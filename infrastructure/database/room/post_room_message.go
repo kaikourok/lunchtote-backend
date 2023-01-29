@@ -115,19 +115,6 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 			relates = append(relates, int32(*message.DirectReply))
 		}
 
-		permissions, banned, err := db.RetrieveRoomOwnPermissions(characterId, message.Room)
-		if err != nil {
-			return err
-		}
-
-		if banned || !permissions.Write {
-			return errors.New("指定のルームで発言を行う権限がありません")
-		}
-
-		if !permissions.UseReply {
-			return errors.New("指定のルームで返信を行う権限がありません")
-		}
-
 		found := false
 		for i := range relates {
 			if relates[i] == int32(characterId) {
@@ -181,7 +168,7 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 			referRoot,
 			message.Icon,
 			message.Name,
-			service.StylizeTextEntry(message.Message, uploadPath),
+			service.StylizeMessage(message.Message, uploadPath),
 			service.ConvertMessageToSearchText(message.Message),
 			message.ReplyPermission,
 			message.Secret,
@@ -190,9 +177,23 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 		)
 
 		var messageId int
-		err = row.Scan(&messageId)
+		err := row.Scan(&messageId)
 		if err != nil {
 			return err
+		}
+
+		if !message.Secret {
+			_, err = tx.Exec(`
+				UPDATE
+					rooms
+				SET
+					messages_count = messages_count + 1
+				WHERE
+					id = $1;
+			`, message.Room)
+			if err != nil {
+				return err
+			}
 		}
 
 		_, err = tx.Exec(`

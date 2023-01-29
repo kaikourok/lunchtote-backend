@@ -12,12 +12,6 @@ import (
 func (u *RoomController) RetrieveRoomMessages(c *gin.Context) {
 	session := sessions.Default(c)
 
-	/*roomId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		return
-	}*/
-
 	options := make([]room.RetrieveRoomMessagesOption, 0, 16)
 
 	if param := c.Query("type"); param != "" {
@@ -64,7 +58,13 @@ func (u *RoomController) RetrieveRoomMessages(c *gin.Context) {
 		options = append(options, room.RetrieveRoomMessagesOptionSearch(&param))
 	}
 
-	messages, isContinuePrevious, isContinueFollowing, err := u.usecase.RetrieveRoomMessages(session.Get("cid").(int), options...)
+	if param := c.Query("base"); param != "" {
+		if base, err := strconv.Atoi(param); err == nil {
+			options = append(options, room.RetrieveRoomMessagesOptionBasePoint(base))
+		}
+	}
+
+	messages, isContinueFollowing, isContinuePrevious, err := u.usecase.RetrieveRoomMessages(session.Get("cid").(int), options...)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return

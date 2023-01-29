@@ -11,7 +11,7 @@ func (s *RoomUsecase) SearchRooms(characterId int, options *model.RoomSearchOpti
 	repository := s.registry.GetRepository()
 
 	err = validation.ValidateStruct(options,
-		validation.Field(&options.Order, validation.In("latest-post", "id")),
+		validation.Field(&options.Order, validation.In("latest-post", "id", "posts-per-day")),
 		validation.Field(&options.Sort, validation.In("asc", "desc")),
 		validation.Field(&options.Participant, validation.In(nil, "own", "follow")),
 	)

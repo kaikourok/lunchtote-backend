@@ -61,25 +61,19 @@ func isImageFileName(s string) bool {
 
 func isImagePath(url string, uploadPath string) bool {
 	allowedExtensions := []string{"png", "gif", "jpg", "jpeg"}
-	uploadPathDepth := strings.Count(uploadPath, "/")
-
-	prefixIndex := strings.Index(url, uploadPath)
-	if prefixIndex != 0 {
-		return false
-	}
 
 	paths := strings.Split(url, "/")
-	if len(paths) != 3+uploadPathDepth {
+	if len(paths) != 3 {
 		return false
 	}
 
-	characterDirectory := paths[1+uploadPathDepth]
+	characterDirectory := paths[1]
 	_, err := strconv.Atoi(characterDirectory)
 	if err != nil {
 		return false
 	}
 
-	fileFullname := paths[2+uploadPathDepth]
+	fileFullname := paths[2]
 	extensionIndex := strings.LastIndex(fileFullname, ".")
 	if extensionIndex == -1 {
 		return false
@@ -129,22 +123,17 @@ func splitTagSections(target string, startTag string, endTag string) (before str
 func replaceImageTag(target string, uploadPath string, startTag string, endTag string, class string) (result string, found bool) {
 	sp := len(target)
 
-	for {
-		before, inner, after, index := splitTagSections(target[:sp], startTag, endTag)
-		if index == -1 {
-			break
-		}
-
-		sp = index
-		url := strings.TrimSpace(inner)
-		if !isImagePath(url, uploadPath) {
-			continue
-		}
-
-		return trimEnd(before, "<br>") + `<img class="` + class + `" src="` + url + `">` + trimStart(after+target[sp:], "<br>"), true
+	before, inner, after, index := splitTagSections(target[:sp], startTag, endTag)
+	if index == -1 {
+		return target, false
 	}
 
-	return target, false
+	url := strings.TrimSpace(inner)
+	if !isImagePath(url, uploadPath) {
+		return trimEnd(before, "<br>") + trimStart(after, "<br>"), true
+	}
+
+	return trimEnd(before, "<br>") + `<img class="` + class + `" src="` + uploadPath + url + `">` + trimStart(after, "<br>"), true
 }
 
 /*-------------------------------------------------------------------------------------------------
@@ -362,7 +351,7 @@ func replaceRubyTag(target string) (result string, found bool) {
 		text := inner[:separatorIndex]
 		ruby := inner[separatorIndex+len(textEndTag+rubyStartTag):]
 
-		return before + `<ruby>` + text + `<rp>(</rp><rt>` + ruby + `</rt><rp>)</rp></ruby>` + after + target[sp:], true
+		return before + `<ruby>` + text + `<rp>(</rp><rt>` + ruby + `</rt><rp>)</rp></ruby>` + after, true
 	}
 
 	return target, false

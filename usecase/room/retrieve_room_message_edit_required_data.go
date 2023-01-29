@@ -26,7 +26,7 @@ func (s *RoomUsecase) RetrieveRoomMessageEditRequiredData(characterId int) (data
 	}
 
 	type fetchConfigResultStruct struct {
-		config *[]model.RoomMessageFetchConfig
+		config *[]model.RoomMessageFetchConfigWithId
 		err    error
 	}
 

@@ -20,7 +20,7 @@ type roomRepository interface {
 	AddRoomMessageFetchConfig(characterId int, config *model.RoomMessageFetchConfig) (configId int, err error)
 	DeleteRoomMessageFetchConfig(characterId, configId int) error
 	RenameRoomMessageFetchConfig(characterId, configId int, name string) error
-	RetrieveRoomMessageFetchConfig(characterId int) (configs *[]model.RoomMessageFetchConfig, err error)
+	RetrieveRoomMessageFetchConfig(characterId int) (configs *[]model.RoomMessageFetchConfigWithId, err error)
 	UpdateRoomMessageFetchConfigOrders(characterId int, orders *[]model.RoomMessageFetchConfigOrder) error
 
 	// ルーム関連情報取得

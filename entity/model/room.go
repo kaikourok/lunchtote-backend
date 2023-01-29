@@ -154,9 +154,9 @@ type RoomMessageEditRequiredData struct {
 	Character struct {
 		Name string `json:"name"`
 	} `json:"character"`
-	Icons        []Icon                   `json:"icons"`
-	Lists        []ListOverview           `json:"lists"`
-	FetchConfigs []RoomMessageFetchConfig `json:"fetchConfigs"`
+	Icons        []Icon                         `json:"icons"`
+	Lists        []ListOverview                 `json:"lists"`
+	FetchConfigs []RoomMessageFetchConfigWithId `json:"fetchConfigs"`
 }
 
 type RoomMessageFetchConfig struct {
@@ -169,6 +169,11 @@ type RoomMessageFetchConfig struct {
 	Character    *int    `json:"character"`
 	RelateFilter *bool   `json:"relateFilter"`
 	Children     *bool   `json:"children"`
+}
+
+type RoomMessageFetchConfigWithId struct {
+	Id int `json:"id"`
+	RoomMessageFetchConfig
 }
 
 type RoomMessageFetchConfigOrder struct {

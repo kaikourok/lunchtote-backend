@@ -64,11 +64,14 @@ type characterRepository interface {
 	RetrieveBlockList(id int) (list *[]model.CharacterListItem, err error)
 
 	// リスト操作
+	RetrieveListOwner(listId int) (characterId int, err error)
 	CreateList(characterId int, name string) (listId int, err error)
 	DeleteList(userId, listId int) error
+	RenameList(listId int, newName string) error
 	AddCharacterToList(userId, targetId, listId int) error
 	RemoveCharacterFromList(userId, targetId, listId int) error
-	RetrieveLists(id int) (lists *[]model.ListOverview, err error)
+	RetrieveLists(characterId int) (lists *[]model.ListOverview, err error)
+	RetrieveList(listId int) (listName string, characters []model.CharacterOverview, err error)
 
 	// 画像管理関連
 	RetrieveUploadedImages(id int) (images *[]model.UploadedImage, err error)

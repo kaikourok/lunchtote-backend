@@ -154,8 +154,10 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					listGroup := mainGroup.Group("lists")
 					listGroup.POST("", middleware.Auth(), character.CreateList)
 					listGroup.GET("", middleware.Auth(), character.RetrieveLists)
+					listGroup.GET("/:list", middleware.Auth(), character.RetrieveList)
 					listGroup.POST("/:list/add", middleware.Auth(), character.AddCharacterToList)
 					listGroup.POST("/:list/remove", middleware.Auth(), character.RemoveCharacterFromList)
+					listGroup.POST("/:list/rename", middleware.Auth(), character.RenameList)
 					listGroup.POST("/:list/delete", middleware.Auth(), character.DeleteList)
 					listGroup.POST("/:list/search-target", middleware.Auth(), character.RetrieveListSuggestions)
 				}

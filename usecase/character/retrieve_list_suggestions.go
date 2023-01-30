@@ -6,7 +6,7 @@ import (
 	"github.com/kaikourok/lunchtote-backend/usecase/errors"
 )
 
-func (s *CharacterUsecase) RetrieveListSuggestions(characterId int, searchText string, listId int) (suggestions *model.CharacterSuggestionsData, err error) {
+func (s *CharacterUsecase) RetrieveListSuggestions(characterId int, searchText string, listId int) (suggestions *model.CharacterSuggestions, err error) {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 
@@ -21,5 +21,5 @@ func (s *CharacterUsecase) RetrieveListSuggestions(characterId int, searchText s
 		return nil, err
 	}
 
-	return results, nil
+	return results.ToDomain(), nil
 }

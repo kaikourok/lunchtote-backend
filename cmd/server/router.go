@@ -79,6 +79,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 		api.POST("/mail-confirm", middleware.Auth(), character.ConfirmEmail)
 		api.POST("/reset-password", character.RequestPasswordResetCode)
 		api.POST("/reset-password-confirm", character.UpdatePasswordByResetCode)
+		api.GET("/announcements", general.RetrieveAnnouncementOverviews)
 		api.GET("/announcements/:id", general.RetrieveAnnouncement)
 
 		{
@@ -250,6 +251,14 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 
 		{
 			controlGroup := api.Group("control")
+
+			{
+				gameGroup := controlGroup.Group("game")
+				gameGroup.POST("/announcements", middleware.AuthAdministrator(), control.Announce)
+				gameGroup.GET("/announcements/:id", middleware.AuthAdministrator(), control.RetrieveAnnouncementEditData)
+				gameGroup.POST("/announcements/:id/update", middleware.AuthAdministrator(), control.UpdateAnnouncement)
+			}
+
 			{
 				debugGroup := controlGroup.Group("debug")
 				debugGroup.POST("/dummy-character", middleware.AuthAdministrator(), control.CreateDummyCharacters)

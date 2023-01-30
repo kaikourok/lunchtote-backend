@@ -2,7 +2,7 @@ package general
 
 import "github.com/kaikourok/lunchtote-backend/entity/model"
 
-func (db *GeneralRepository) UpdateAnnouncement(announceId int, announce *model.AnnouncementEditDataUpdate) error {
+func (db *GeneralRepository) UpdateAnnouncement(announcementId int, announce *model.AnnouncementEditDataUpdate) error {
 	_, err := db.Exec(`
 		UPDATE
 			announcements
@@ -22,7 +22,7 @@ func (db *GeneralRepository) UpdateAnnouncement(announceId int, announce *model.
 		WHERE
 			id = $1;
 	`,
-		announceId,
+		announcementId,
 		announce.Type,
 		announce.Title,
 		announce.Overview,

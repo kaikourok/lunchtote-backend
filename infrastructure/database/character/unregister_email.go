@@ -1,11 +1,11 @@
 package character
 
-func (db *CharacterRepository) DeleteCharacter(characterId int) error {
+func (db *CharacterRepository) UnregisterEmail(characterId int) error {
 	_, err := db.Exec(`
 		UPDATE
 			characters
 		SET
-			deleted_at = CURRENT_TIMESTAMP
+			email = NULL
 		WHERE
 			id = $1;
 	`, characterId)

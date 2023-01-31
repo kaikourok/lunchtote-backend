@@ -86,8 +86,10 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 			oauthGroup := api.Group("oauth")
 			oauthGroup.GET("/google", character.GoogleOauthRequest)
 			oauthGroup.GET("/google/callback", character.GoogleOauthCallback)
+			oauthGroup.POST("/google/unlink", middleware.Auth(), character.UnlinkGoogle)
 			oauthGroup.GET("/twitter", character.TwitterOauthRequest)
 			oauthGroup.GET("/twitter/callback", character.TwitterOauthCallback)
+			oauthGroup.POST("/twitter/unlink", middleware.Auth(), character.UnlinkTwitter)
 		}
 
 		{
@@ -120,6 +122,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 				mainGroup.POST("/upload", middleware.Auth(), character.UploadImages)
 				mainGroup.POST("/upload/base64", middleware.Auth(), character.UploadBase64EncordedImages)
 				mainGroup.GET("/notifications", middleware.Auth(), character.RetrieveNotifications)
+				mainGroup.POST("/delete", middleware.Auth(), character.DeleteCharacter)
 
 				{
 					settingGroup := mainGroup.Group("settings")
@@ -131,6 +134,10 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					settingGroup.POST("/profile-images", middleware.Auth(), character.UpdateProfileImages)
 					settingGroup.GET("/uploaded-images", middleware.Auth(), character.RetrieveUploadedImages)
 					settingGroup.POST("/uploaded-images/delete", middleware.Auth(), character.DeleteUploadedImages)
+					settingGroup.GET("/other", middleware.Auth(), character.RetrieveOtherSettings)
+					settingGroup.POST("/other", middleware.Auth(), character.UpdateOtherSettings)
+					settingGroup.POST("/email", middleware.Auth(), character.RequestRegisterEmail)
+					settingGroup.POST("/email/unregister", middleware.Auth(), character.UnregisterEmail)
 
 					{
 						layeringGroup := settingGroup.Group("layerings")

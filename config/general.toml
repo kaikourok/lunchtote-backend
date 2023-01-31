@@ -38,11 +38,11 @@ initial-administrators = [ # 初期化時の管理キャラクター
 ]
 
 [oauth]
-state-length     = 32                # OAuth 2.0で使用するstateの長さ
-verifier-length  = 43                # OAuth 2.0のPKCEで使用するcode_verifierの長さ（43～128）
-signin-url       = "/signin"         # ログインURL（ログイン失敗時に遷移）
-signed-in-uri    = "/home"           # ログイン後URL
-registered-uri   = "/settings/oauth" # OAuth登録後URL（登録完了、失敗時に遷移）
+state-length     = 32                  # OAuth 2.0で使用するstateの長さ
+verifier-length  = 43                  # OAuth 2.0のPKCEで使用するcode_verifierの長さ（43～128）
+signin-url       = "/signin"           # ログインURL（ログイン失敗時に遷移）
+signed-in-uri    = "/home"             # ログイン後URL
+registered-uri   = "/settings/general" # OAuth登録後URL（登録完了、失敗時に遷移）
 
 [oauth.google]
 client-id     = "clientid"

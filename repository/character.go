@@ -34,6 +34,9 @@ type characterRepository interface {
 	DeleteCharacter(id int) error
 	UndeleteCharacter(id int) error
 	CheckUsernameExists(username string) (exists bool, err error)
+	UnregisterEmail(characterId int) error
+	UnlinkTwitter(characterId int) error
+	UnlinkGoogle(characterId int) error
 
 	//SSO関連
 	RetrieveCredentialsByTwitter(twitterId string) (characterId int, notificationToken string, err error)
@@ -41,7 +44,7 @@ type characterRepository interface {
 	RegisterGoogleData(characterId int, googleId string) error
 	RegisterTwitterData(characterId int, twitterId string) error
 
-	// プロフィール編集関連
+	// プロフィール・設定編集関連
 	RetrieveProfileEditData(id int) (data *model.ProfileEditData, err error)
 	UpdateProfile(id int, profile *model.ProfileEditData) error
 	RetrieveCharacterIcons(id int) (icons *[]model.Icon, err error)
@@ -49,6 +52,8 @@ type characterRepository interface {
 	UpdateIcons(id int, icons *[]model.Icon, insertOnly bool) error
 	UpdateProfileImages(id int, images *[]model.ProfileImage) error
 	UpdateEmail(id int, email string) error
+	RetrieveOtherSettings(characterId int) (settings *model.CharacterOtherSettingsState, err error)
+	UpdateOtherSettings(characterId int, settings *model.CharacterOtherSettings) error
 
 	// 関連性関連
 	Follow(userId, targetId int) (userName string, webhook string, err error)

@@ -146,3 +146,28 @@ type CharacterIconLayerGroupOrder struct {
 	LayerGroup int `json:"layerGroup"`
 	Order      int `json:"order"`
 }
+
+type CharacterOtherSettings struct {
+	Webhook struct {
+		Url       string `json:"url"`
+		Followed  bool   `json:"followed"`
+		Replied   bool   `json:"replied"`
+		Subscribe bool   `json:"subscribe"`
+		Mail      bool   `json:"mail"`
+	} `json:"webhook"`
+	Notification struct {
+		Followed  bool `json:"followed"`
+		Replied   bool `json:"replied"`
+		Subscribe bool `json:"subscribe"`
+		Mail      bool `json:"mail"`
+	} `json:"notification"`
+}
+
+type CharacterOtherSettingsState struct {
+	Email        *string `json:"email"`
+	LinkedStates struct {
+		Twitter bool `json:"twitter"`
+		Google  bool `json:"google"`
+	} `json:"linkedStates"`
+	CharacterOtherSettings
+}

@@ -26,10 +26,18 @@ func (r UsernameRule) Validate(value interface{}) error {
 		return ErrInvalidLength
 	}
 
+	containsAlphabet := false
 	for _, r := range str {
 		if !(r == '_') && !('0' <= r && r <= '9') && !('A' <= r && r <= 'Z') && !('a' <= r && r <= 'z') {
 			return ErrInvalidRune
 		}
+		if ('A' <= r && r <= 'Z') || ('a' <= r && r <= 'z') {
+			containsAlphabet = true
+		}
+	}
+
+	if !containsAlphabet {
+		return ErrInvalidFormat
 	}
 
 	return nil

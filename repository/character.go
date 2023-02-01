@@ -38,7 +38,7 @@ type characterRepository interface {
 	UnlinkTwitter(characterId int) error
 	UnlinkGoogle(characterId int) error
 
-	//SSO関連
+	// SSO関連
 	RetrieveCredentialsByTwitter(twitterId string) (characterId int, notificationToken string, err error)
 	RetrieveCredentialsByGoogle(googleId string) (characterId int, notificationToken string, err error)
 	RegisterGoogleData(characterId int, googleId string) error
@@ -107,6 +107,7 @@ type characterRepository interface {
 	RetrieveProhibitionRelatedData(targetId int) (data *[]model.ProhibitionRelatedData, err error)
 
 	// その他
-	RetrieveNotifications(id, start, number int) (notifications *[]model.Notification, isContinue bool, err error)
+	RetrieveNotifications(id, start, number int) (notifications []model.Notification, isContinue bool, err error)
+	UpdateNotificationChecked(characterId int) error
 	RetrieveEmailRegistratedCharacters(targetCharacters *[]int) (characters *[]model.CharacterEmailRegistratedData, err error)
 }

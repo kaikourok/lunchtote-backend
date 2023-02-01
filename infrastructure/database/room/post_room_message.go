@@ -9,8 +9,8 @@ import (
 	"github.com/lib/pq"
 )
 
-func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPostMessage, uploadPath string) error {
-	return db.ExecTx(func(tx *sqlx.Tx) error {
+func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPostMessage, uploadPath string) (messageId int, err error) {
+	err = db.ExecTx(func(tx *sqlx.Tx) error {
 		relates := make([]int32, 0, 16)
 		var referRoot *int
 		var userName string
@@ -176,7 +176,6 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 			pq.Array(relates),
 		)
 
-		var messageId int
 		err := row.Scan(&messageId)
 		if err != nil {
 			return err
@@ -239,8 +238,7 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 				) VALUES (
 					$1,
 					$2
-				)
-				ON CONFLICT DO NOTHING;
+				);
 			`, messageId, relates[i])
 			if err != nil {
 				return err
@@ -263,4 +261,6 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 
 		return nil
 	})
+
+	return
 }

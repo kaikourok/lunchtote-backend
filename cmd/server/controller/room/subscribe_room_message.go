@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (u *RoomController) RetrieveRoomInitialData(c *gin.Context) {
+func (u *RoomController) SubscribeRoomMessage(c *gin.Context) {
 	session := sessions.Default(c)
 
 	roomId, err := strconv.Atoi(c.Param("id"))
@@ -17,11 +17,11 @@ func (u *RoomController) RetrieveRoomInitialData(c *gin.Context) {
 		return
 	}
 
-	initialData, err := u.usecase.RetrieveRoomInitialData(session.Get("cid").(int), roomId)
+	err = u.usecase.SubscribeRoomMessage(session.Get("cid").(int), roomId)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, initialData)
+	c.Status(http.StatusOK)
 }

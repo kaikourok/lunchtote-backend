@@ -6,8 +6,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (db *MailRepository) SendMail(userId, targetId int, title, message string) error {
-	return db.ExecTx(func(tx *sqlx.Tx) error {
+func (db *MailRepository) SendMail(userId, targetId int, title, message string) (userName string, targetWebhook string, err error) {
+	err = db.ExecTx(func(tx *sqlx.Tx) error {
 		row := tx.QueryRowx(`
 			SELECT
 				EXISTS (
@@ -25,7 +25,7 @@ func (db *MailRepository) SendMail(userId, targetId int, title, message string) 
 					FROM
 						characters
 					WHERE
-						id = $1 AND administrator = false AND deleted_at IS NULL
+						id = $2 AND administrator = false AND deleted_at IS NULL
 				);
 		`, userId, targetId)
 
@@ -44,7 +44,7 @@ func (db *MailRepository) SendMail(userId, targetId int, title, message string) 
 			return errors.New("対象のキャラクターが存在しません")
 		}
 
-		_, err = tx.Exec(`
+		row = tx.QueryRowx(`
 			INSERT INTO mails (
 				sender,
 				receiver,
@@ -55,13 +55,19 @@ func (db *MailRepository) SendMail(userId, targetId int, title, message string) 
 				$2,
 				$3,
 				$4
-			);
+			)
+			
+			RETURNING
+				id;
 		`,
 			userId,
 			targetId,
 			title,
 			message,
 		)
+
+		var mailId int
+		err = row.Scan(&mailId)
 		if err != nil {
 			return err
 		}
@@ -73,7 +79,6 @@ func (db *MailRepository) SendMail(userId, targetId int, title, message string) 
 					WHEN false THEN ''
 				END,
 				notification_mail,
-				deleted_at IS NOT NULL,
 				(SELECT nickname FROM characters WHERE id = $2)
 			FROM
 				characters
@@ -81,61 +86,52 @@ func (db *MailRepository) SendMail(userId, targetId int, title, message string) 
 				id = $1;
 		`, targetId, userId)
 
-		var webhook, userName string
-		var isTargetNotificationEnable, isTargetDeleted bool
+		var isTargetNotificationEnable bool
 		err = row.Scan(
-			&webhook,
+			&targetWebhook,
 			&isTargetNotificationEnable,
-			&isTargetDeleted,
 			&userName,
 		)
 		if err != nil {
 			return err
 		}
 
-		return nil
-	})
-
-	/* TODO
-		notificationMessage := strings.ReplaceAll(
-			strings.ReplaceAll(config.GetString("notification.mail-template"), "{entry-number}", utils.ConvertCharacterIdToText(userId)),
-			"{name}", userName,
-		)
-
 		if isTargetNotificationEnable {
-			_, err = tx.Exec(`
+			row = tx.QueryRowx(`
 				INSERT INTO notifications (
-					type,
 					character,
-					message,
-					icon,
-					value,
-					detail
+					type
 				) VALUES (
-					'FOLLOWED',
 					$1,
-					$2,
-					(SELECT mainicon FROM characters WHERE id = $3),
-					cast($3 as TEXT),
-					$4
-				);
-			`, payload.Target, notificationMessage, userId, payload.Message)
+					'MAIL'
+				)
+				
+				RETURNING
+					id;
+			`, targetId)
+
+			var notificationId int
+			err = row.Scan(&notificationId)
 			if err != nil {
-				log.Println(err)
+				return err
+			}
+
+			_, err = tx.Exec(`
+				INSERT INTO notifications_mail_data (
+					notification,
+					mail
+				) VALUES (
+					$1,
+					$2
+				);
+			`, notificationId, mailId)
+			if err != nil {
 				return err
 			}
 		}
 
-		if !isTargetDeleted {
-			if webhook != "" {
-				go notification.SendWebhook(webhook, notificationMessage)
-			}
-			if isTargetNotificationEnable {
-				go notification.SendNotification([]int{payload.Target}, notificationMessage)
-			}
-		}
-
 		return nil
 	})
-	*/
+
+	return
 }

@@ -2,9 +2,12 @@ package room
 
 import (
 	"errors"
+	"strconv"
+	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/kaikourok/lunchtote-backend/entity/model"
+	"github.com/kaikourok/lunchtote-backend/entity/service"
 	"github.com/kaikourok/lunchtote-backend/entity/validator"
 	usecaseErrors "github.com/kaikourok/lunchtote-backend/usecase/errors"
 )
@@ -13,6 +16,7 @@ func (s *RoomUsecase) PostRoomMessage(characterId int, message *model.RoomPostMe
 	logger := s.registry.GetLogger()
 	config := s.registry.GetConfig()
 	repository := s.registry.GetRepository()
+	notificator := s.registry.GetNotificator()
 
 	if message == nil {
 		return usecaseErrors.ErrValidate
@@ -45,18 +49,72 @@ func (s *RoomUsecase) PostRoomMessage(characterId int, message *model.RoomPostMe
 	}
 
 	if roleType != "MASTER" && roleType != "MEMBER" {
-		err = repository.JoinToRoom(characterId, message.Room)
+		room, targetName, newMemberWebhooks, err := repository.JoinToRoom(characterId, message.Room)
 		if err != nil {
 			logger.Error(err)
 			return err
 		}
+
+		if 0 < len(newMemberWebhooks) {
+			go func() {
+				newMemberReplacer := strings.NewReplacer(
+					"{base-path}", config.GetString("general.client-host"),
+					"{room-title}", room.Title,
+					"{room-id}", strconv.Itoa(room.Id),
+					"{entry-number-text}", service.ConvertCharacterIdToText(characterId),
+					"{name}", targetName,
+				)
+				newMemberMessage := newMemberReplacer.Replace(config.GetString("notification.new-member-template"))
+
+				for _, webhook := range newMemberWebhooks {
+					notificator.SendWebhook(webhook, newMemberMessage)
+				}
+			}()
+		}
 	}
 
-	err = repository.PostRoomMessage(characterId, message, config.GetString("general.upload-path"))
+	messageId, err := repository.PostRoomMessage(characterId, message, config.GetString("general.upload-path"))
 	if err != nil {
 		logger.Error(err)
 		return err
 	}
+
+	go func() {
+		dto, err := repository.NotificateRoomMessage(messageId)
+		if err != nil {
+			logger.Error(err)
+			return
+		}
+
+		if 0 < len(dto.RepliedWebhooks) {
+			repliedReplacer := strings.NewReplacer(
+				"{base-path}", config.GetString("general.client-host"),
+				"{entry-number-text}", service.ConvertCharacterIdToText(dto.UserId),
+				"{name}", dto.UserName,
+				"{refer-root}", strconv.Itoa(dto.ReferRoot),
+			)
+			repliedMessage := repliedReplacer.Replace(config.GetString("notification.replied-template"))
+
+			for _, webhook := range dto.RepliedWebhooks {
+				notificator.SendWebhook(webhook, repliedMessage)
+			}
+		}
+
+		if 0 < len(dto.SubscribeWebhooks) {
+			subscribeReplacer := strings.NewReplacer(
+				"{base-path}", config.GetString("general.client-host"),
+				"{room-title}", dto.RoomTitle,
+				"{room-id}", strconv.Itoa(dto.RoomId),
+				"{entry-number-text}", service.ConvertCharacterIdToText(dto.UserId),
+				"{name}", dto.UserName,
+			)
+			subscribeMessage := subscribeReplacer.Replace(config.GetString("notification.subscribe-template"))
+
+			for _, webhook := range dto.SubscribeWebhooks {
+				notificator.SendWebhook(webhook, subscribeMessage)
+			}
+		}
+	}()
 
 	return nil
 }

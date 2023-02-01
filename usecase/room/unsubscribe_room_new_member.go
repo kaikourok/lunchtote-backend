@@ -2,19 +2,19 @@ package room
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/kaikourok/lunchtote-backend/usecase/errors"
+	usecaseErrors "github.com/kaikourok/lunchtote-backend/usecase/errors"
 )
 
-func (s *RoomUsecase) DeleteRoom(characterId, roomId int) error {
+func (s *RoomUsecase) UnsubscribeRoomNewMember(characterId int, roomId int) error {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 
 	err := validation.Validate(roomId, validation.Min(1))
 	if err != nil {
-		return errors.ErrValidate
+		return usecaseErrors.ErrValidate
 	}
 
-	err = repository.DeleteRoom(characterId, roomId)
+	err = repository.UnsubscribeRoomNewMember(characterId, roomId)
 	if err != nil {
 		logger.Error(err)
 		return err

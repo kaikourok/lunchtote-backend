@@ -14,7 +14,15 @@ type roomRepository interface {
 	RetrieveRoomRelations(roomId int) (relations *model.RoomRelations, err error)
 	RetrieveRoomMessages(characterId int, options *model.RoomMessageRetrieveSettings) (messages *[]model.RoomMessage, isContinueFollowing, isContinuePrevious *bool, err error)
 	RetrieveRoomDetailData(characterId int, roomId int) (room *model.RoomDetailData, err error)
-	PostRoomMessage(characterId int, message *model.RoomPostMessage, uploadPath string) error
+	PostRoomMessage(characterId int, message *model.RoomPostMessage, uploadPath string) (messageId int, err error)
+
+	// 通知関連
+	NotificateRoomMessage(messageId int) (dto *model.RoomNotificationRelatedData, err error)
+	RetrieveRoomSubscribeStates(characterId, roomId int) (states *model.RoomSubscribeStates, err error)
+	SubscribeRoomMessage(characterId, roomId int) error
+	SubscribeRoomNewMember(characterId, roomId int) error
+	UnsubscribeRoomMessage(characterId, roomId int) error
+	UnsubscribeRoomNewMember(characterId, roomId int) error
 
 	// メッセージ取得関連
 	AddRoomMessageFetchConfig(characterId int, config *model.RoomMessageFetchConfig) (configId int, err error)
@@ -50,7 +58,7 @@ type roomRepository interface {
 	RetrieveRoomInviteSuggestions(characterId int, searchText string, roomId int) (suggestions *model.CharacterSuggestionsData, err error)
 
 	// ロール設定関連
-	JoinToRoom(targetId, roomId int) error
+	JoinToRoom(targetId, roomId int) (room *model.RoomOverview, targetName string, newMemberWebhooks []string, err error)
 	CreateRole(characterId, roomId int, roleName string, role *model.RoomRolePermission) (roleId int, err error)
 	DeleteRole(characterId, roleId int) error
 	UpdateRolePermissions(characterId, roleId int, roleName string, role *model.RoomRolePermission) error

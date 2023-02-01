@@ -17,7 +17,11 @@ func (db *GeneralRepository) Initialize() error {
 
     CREATE TYPE notification_type AS ENUM (
       'FOLLOWED',
-      'REPLIED'
+      'REPLIED',
+      'SUBSCRIBE',
+      'NEW_MEMBER',
+      'MAIL',
+      'MASS_MAIL'
     );
 
     CREATE TYPE prohibition_related_data_type AS ENUM (
@@ -133,10 +137,12 @@ func (db *GeneralRepository) Initialize() error {
       webhook_followed             BOOLEAN   NOT NULL DEFAULT true,
       webhook_replied              BOOLEAN   NOT NULL DEFAULT true,
       webhook_subscribe            BOOLEAN   NOT NULL DEFAULT true,
+      webhook_new_member           BOOLEAN   NOT NULL DEFAULT true,
       webhook_mail                 BOOLEAN   NOT NULL DEFAULT true,
       notification_followed        BOOLEAN   NOT NULL DEFAULT true,
       notification_replied         BOOLEAN   NOT NULL DEFAULT true,
       notification_subscribe       BOOLEAN   NOT NULL DEFAULT true,
+      notification_new_member      BOOLEAN   NOT NULL DEFAULT true,
       notification_mail            BOOLEAN   NOT NULL DEFAULT true,
       notification_last_checked_at TIMESTAMP NOT NULL DEFAULT '2000-01-01 00:00:00-00',
       notification_token           TEXT      NOT NULL,
@@ -369,14 +375,23 @@ func (db *GeneralRepository) Initialize() error {
     CREATE INDEX ON rooms_banned_characters(banned);
     CREATE INDEX ON rooms_banned_characters(banned_at);
   
-    CREATE TABLE rooms_subscribers (
+    CREATE TABLE rooms_message_subscribers (
       id        SERIAL NOT NULL PRIMARY KEY,
       room      INT    NOT NULL REFERENCES rooms(id),
       character INT    NOT NULL REFERENCES characters(id)
     );
-    CREATE UNIQUE INDEX ON rooms_subscribers(room, character);
-    CREATE INDEX ON rooms_subscribers(room);
-    CREATE INDEX ON rooms_subscribers(character);
+    CREATE UNIQUE INDEX ON rooms_message_subscribers(room, character);
+    CREATE INDEX ON rooms_message_subscribers(room);
+    CREATE INDEX ON rooms_message_subscribers(character);
+  
+    CREATE TABLE rooms_new_member_subscribers (
+      id        SERIAL NOT NULL PRIMARY KEY,
+      room      INT    NOT NULL REFERENCES rooms(id),
+      character INT    NOT NULL REFERENCES characters(id)
+    );
+    CREATE UNIQUE INDEX ON rooms_new_member_subscribers(room, character);
+    CREATE INDEX ON rooms_new_member_subscribers(room);
+    CREATE INDEX ON rooms_new_member_subscribers(character);
   
     CREATE TABLE rooms_role_tables_advisory_locker (
       id           SERIAL  NOT NULL PRIMARY KEY,
@@ -469,19 +484,6 @@ func (db *GeneralRepository) Initialize() error {
     CREATE INDEX ON message_fetch_configs(master);
     CREATE INDEX ON message_fetch_configs(config_order);
 
-    CREATE TABLE notifications (
-      id             SERIAL    NOT NULL PRIMARY KEY,
-      character      INT       NOT NULL REFERENCES characters(id),
-      icon           TEXT,
-      message        TEXT      NOT NULL CHECK (message != ''),
-      detail         TEXT      NOT NULL DEFAULT '',
-      value          TEXT      NOT NULL DEFAULT '',
-      notificated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      type           notification_type NOT NULL
-    );
-    CREATE INDEX ON notifications(character);
-    CREATE INDEX ON notifications(notificated_at);
-
     CREATE TABLE mails (
       id           SERIAL    NOT NULL PRIMARY KEY,
       sender       INT                REFERENCES characters(id),
@@ -498,14 +500,14 @@ func (db *GeneralRepository) Initialize() error {
     CREATE INDEX ON mails(receiver);
     CREATE INDEX ON mails(posted_at);
 
-    CREATE TABLE mails_everyone (
+    CREATE TABLE mass_mails (
       id        SERIAL    NOT NULL PRIMARY KEY,
       name      TEXT      NOT NULL CHECK (name != ''),
       title     TEXT      NOT NULL CHECK (title != ''),
       message   TEXT      NOT NULL CHECK (message != ''),
       posted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
-    CREATE INDEX ON mails_everyone(posted_at);
+    CREATE INDEX ON mass_mails(posted_at);
 
     CREATE TABLE threads (
       id             SERIAL        NOT NULL PRIMARY KEY,
@@ -702,6 +704,66 @@ func (db *GeneralRepository) Initialize() error {
     );
     CREATE INDEX ON forum_topics_posts_revisions(post);
     CREATE INDEX ON forum_topics_posts_revisions(posted_at);
+
+    CREATE TABLE notifications (
+      id             SERIAL    NOT NULL PRIMARY KEY,
+      character      INT       NOT NULL REFERENCES characters(id),
+      notificated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      type           notification_type NOT NULL
+    );
+    CREATE INDEX ON notifications(character);
+    CREATE INDEX ON notifications(notificated_at);
+    CREATE INDEX ON notifications(type);
+    
+    CREATE TABLE notifications_followed_data (
+      id           SERIAL NOT NULL PRIMARY KEY,
+      notification INT    NOT NULL REFERENCES notifications(id),
+      followed_by  INT    NOT NULL REFERENCES characters(id)
+    );
+    CREATE UNIQUE INDEX ON notifications_followed_data(notification);
+    CREATE INDEX ON notifications_followed_data(followed_by);
+
+    CREATE TABLE notifications_replied_data (
+      id           SERIAL NOT NULL PRIMARY KEY,
+      notification INT    NOT NULL REFERENCES notifications(id),
+      message      INT    NOT NULL REFERENCES rooms_messages(id)
+    );
+    CREATE UNIQUE INDEX ON notifications_replied_data(notification);
+    CREATE INDEX ON notifications_replied_data(message);
+
+    CREATE TABLE notifications_subscribe_data (
+      id           SERIAL NOT NULL PRIMARY KEY,
+      notification INT    NOT NULL REFERENCES notifications(id),
+      message      INT    NOT NULL REFERENCES rooms_messages(id)
+    );
+    CREATE UNIQUE INDEX ON notifications_subscribe_data(notification);
+    CREATE INDEX ON notifications_subscribe_data(message);
+
+    CREATE TABLE notifications_new_member_data (
+      id           SERIAL NOT NULL PRIMARY KEY,
+      notification INT    NOT NULL REFERENCES notifications(id),
+      room         INT    NOT NULL REFERENCES rooms(id),
+      character    INT    NOT NULL REFERENCES characters(id)
+    );
+    CREATE UNIQUE INDEX ON notifications_new_member_data(notification);
+    CREATE INDEX ON notifications_new_member_data(room);
+    CREATE INDEX ON notifications_new_member_data(character);
+
+    CREATE TABLE notifications_mail_data (
+      id           SERIAL NOT NULL PRIMARY KEY,
+      notification INT    NOT NULL REFERENCES notifications(id),
+      mail         INT    NOT NULL REFERENCES mails(id)
+    );
+    CREATE UNIQUE INDEX ON notifications_mail_data(notification);
+    CREATE INDEX ON notifications_mail_data(mail);
+
+    CREATE TABLE notifications_mass_mail_data (
+      id           SERIAL NOT NULL PRIMARY KEY,
+      notification INT    NOT NULL REFERENCES notifications(id),
+      mail         INT    NOT NULL REFERENCES mass_mails(id)
+    );
+    CREATE UNIQUE INDEX ON notifications_mass_mail_data(notification);
+    CREATE INDEX ON notifications_mass_mail_data(mail);
 
 		INSERT INTO game_status (
 			nth

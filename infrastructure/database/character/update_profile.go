@@ -15,7 +15,7 @@ func (db *CharacterRepository) UpdateProfile(id int, profile *model.ProfileEditD
 				nickname = $3,
 				summary  = $4,
 				profile  = $5,
-				Mainicon = $6
+				mainicon = $6
 			WHERE
 				id = $1;
 		`,

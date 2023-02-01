@@ -7,15 +7,17 @@ func (db *CharacterRepository) UpdateOtherSettings(characterId int, settings *mo
 		UPDATE
 			characters
 		SET
-			webhook                = $2,
-			webhook_followed       = $3,
-			webhook_replied        = $4,
-			webhook_subscribe      = $5,
-			webhook_mail           = $6,
-			notification_followed  = $7,
-			notification_replied   = $8,
-			notification_subscribe = $9,
-			notification_mail      = $10
+			webhook                 = $2,
+			webhook_followed        = $3,
+			webhook_replied         = $4,
+			webhook_subscribe       = $5,
+			webhook_new_member      = $6,
+			webhook_mail            = $7,
+			notification_followed   = $8,
+			notification_replied    = $9,
+			notification_subscribe  = $10,
+			notification_new_member = $11,
+			notification_mail       = $12
 		WHERE
 			id = $1;
 	`,
@@ -24,10 +26,12 @@ func (db *CharacterRepository) UpdateOtherSettings(characterId int, settings *mo
 		&settings.Webhook.Followed,
 		&settings.Webhook.Replied,
 		&settings.Webhook.Subscribe,
+		&settings.Webhook.NewMember,
 		&settings.Webhook.Mail,
 		&settings.Notification.Followed,
 		&settings.Notification.Replied,
 		&settings.Notification.Subscribe,
+		&settings.Notification.NewMember,
 		&settings.Notification.Mail,
 	)
 

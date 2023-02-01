@@ -17,12 +17,12 @@ func (s *CharacterUsecase) UpdateProfile(characterId int, profile *model.Profile
 	}
 
 	err = validation.ValidateStruct(profile,
-		validation.Field(profile.Name, validation.Required, validator.IsNotContainSpecialRune, validator.IsNotOnlySpace),
-		validation.Field(profile.Nickname, validation.Required, validator.IsNotContainSpecialRune, validator.IsNotOnlySpace),
-		validation.Field(profile.Summary, validator.IsNotContainSpecialRune),
-		validation.Field(profile.Profile, validator.IsNotContainSpecialRune),
-		validation.Field(profile.Mainicon, validator.IsImagePath(&characterId)),
-		validation.Field(profile.Tags, validation.Each(validator.IsNotOnlySpace, validator.IsNotContainSpecialRune)),
+		validation.Field(&profile.Name, validation.Required, validator.IsNotContainSpecialRune, validator.IsNotOnlySpace),
+		validation.Field(&profile.Nickname, validation.Required, validator.IsNotContainSpecialRune, validator.IsNotOnlySpace),
+		validation.Field(&profile.Summary, validator.IsNotContainSpecialRune),
+		validation.Field(&profile.Profile, validator.IsNotContainSpecialRune),
+		validation.Field(&profile.Mainicon, validator.IsImagePathOrEmpty(&characterId)),
+		validation.Field(&profile.Tags, validation.Each(validator.IsNotOnlySpace, validator.IsNotContainSpecialRune)),
 	)
 	if err != nil {
 		return errors.ErrValidate

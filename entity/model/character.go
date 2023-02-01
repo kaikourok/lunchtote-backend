@@ -153,12 +153,14 @@ type CharacterOtherSettings struct {
 		Followed  bool   `json:"followed"`
 		Replied   bool   `json:"replied"`
 		Subscribe bool   `json:"subscribe"`
+		NewMember bool   `json:"newMember"`
 		Mail      bool   `json:"mail"`
 	} `json:"webhook"`
 	Notification struct {
 		Followed  bool `json:"followed"`
 		Replied   bool `json:"replied"`
 		Subscribe bool `json:"subscribe"`
+		NewMember bool `json:"newMember"`
 		Mail      bool `json:"mail"`
 	} `json:"notification"`
 }

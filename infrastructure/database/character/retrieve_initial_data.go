@@ -9,7 +9,7 @@ func (db *CharacterRepository) RetrieveInitialData(id int) (existsUnreadNotifica
 				FROM
 					notifications
 				WHERE
-					character = $1 AND
+					character = characters.id AND
 					notificated_at > (SELECT notification_last_checked_at FROM characters WHERE id = $1)
 				),
 			EXISTS (
@@ -18,10 +18,15 @@ func (db *CharacterRepository) RetrieveInitialData(id int) (existsUnreadNotifica
 				FROM
 					mails
 				WHERE
-					receiver = $1    AND
+					receiver = characters.id AND
 					read     = false AND
 					deleted_at IS NULL
-				);
+				)
+		FROM
+			characters
+		WHERE
+			characters.id = $1 AND
+			characters.deleted_at IS NULL;
 	`, id)
 
 	err = row.Scan(

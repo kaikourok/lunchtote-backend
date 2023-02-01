@@ -192,3 +192,26 @@ type RoomSearchOptions struct {
 	Offset       int      `json:"offset"`
 	Limit        int      `json:"limit"`
 }
+
+type RoomNotificationRelatedData struct {
+	RoomId            int
+	RoomTitle         string
+	UserId            int
+	UserName          string
+	ReferRoot         int
+	RepliedWebhooks   []string
+	SubscribeWebhooks []string
+}
+
+type RoomSubscribeStates struct {
+	Message   bool `json:"message"`
+	NewMember bool `json:"newMember"`
+}
+
+type RoomInitialData struct {
+	Title           string               `json:"title"`
+	Relations       RoomRelations        `json:"relations"`
+	Permissions     RoomMemberPermission `json:"permissions"`
+	SubscribeStates RoomSubscribeStates  `json:"subscribeStates"`
+	Banned          bool                 `json:"banned"`
+}

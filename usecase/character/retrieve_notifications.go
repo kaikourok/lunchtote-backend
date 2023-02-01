@@ -4,7 +4,7 @@ import (
 	"github.com/kaikourok/lunchtote-backend/entity/model"
 )
 
-func (s *CharacterUsecase) RetrieveNotifications(characterId int, start int) (notifications *[]model.Notification, isContinue bool, err error) {
+func (s *CharacterUsecase) RetrieveNotifications(characterId int, start int) (notifications []model.Notification, isContinue bool, err error) {
 	logger := s.registry.GetLogger()
 	config := s.registry.GetConfig()
 	repository := s.registry.GetRepository()

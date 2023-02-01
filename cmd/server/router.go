@@ -122,6 +122,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 				mainGroup.POST("/upload", middleware.Auth(), character.UploadImages)
 				mainGroup.POST("/upload/base64", middleware.Auth(), character.UploadBase64EncordedImages)
 				mainGroup.GET("/notifications", middleware.Auth(), character.RetrieveNotifications)
+				mainGroup.POST("/notifications/checked", middleware.Auth(), character.UpdateNotificationChecked)
 				mainGroup.POST("/delete", middleware.Auth(), character.DeleteCharacter)
 
 				{
@@ -195,6 +196,10 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 				roomGroup.GET("", middleware.Auth(), room.RetrieveRoomInitialData)
 				roomGroup.GET("/permissions", middleware.Auth(), room.RetrieveRoomOwnPermissions)
 				roomGroup.POST("/messages", middleware.Auth(), room.PostRoomMessage)
+				roomGroup.POST("/message-event/subscribe", middleware.Auth(), room.SubscribeRoomMessage)
+				roomGroup.POST("/message-event/unsubscribe", middleware.Auth(), room.UnsubscribeRoomMessage)
+				roomGroup.POST("/new-member-event/subscribe", middleware.Auth(), room.SubscribeRoomNewMember)
+				roomGroup.POST("/new-member-event/unsubscribe", middleware.Auth(), room.UnsubscribeRoomNewMember)
 
 				{
 					controlGroup := roomGroup.Group("control")

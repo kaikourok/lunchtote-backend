@@ -101,3 +101,38 @@ func (r ImagePathRule) Validate(value interface{}) error {
 func IsImagePath(characterId *int) ImagePathRule {
 	return ImagePathRule{characterId}
 }
+
+/*-------------------------------------------------------------------------------------------------
+	ImagePathOrEmpty
+-------------------------------------------------------------------------------------------------*/
+
+type ImagePathOrEmptyRule struct {
+	character *int
+}
+
+func (r ImagePathOrEmptyRule) Validate(value interface{}) error {
+	v := reflect.ValueOf(value)
+	if v.Kind() != reflect.String {
+		return ErrInvalidType
+	}
+
+	str := v.String()
+	if str == "" {
+		return nil
+	}
+
+	characterId, err := service.ParseFilePath(str)
+	if err != nil {
+		return ErrInvalidFormat
+	}
+
+	if r.character != nil && characterId != *r.character {
+		return ErrForbidden
+	}
+
+	return nil
+}
+
+func IsImagePathOrEmpty(characterId *int) ImagePathOrEmptyRule {
+	return ImagePathOrEmptyRule{characterId}
+}

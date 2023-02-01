@@ -63,9 +63,43 @@ user-data-url = "https://api.twitter.com/2/users/me"
 scopes        = ["tweet.read", "users.read"]
 
 [notification]
-followed-template           = "{entry-number} {name}にフォローされました"        # フォローされたときの通知メッセージ {entry-number}が登録番号、{name}がキャラクターの短縮名に置換
-mail-template               = "{entry-number} {name}からの新しいメールがあります" # 新着メールの通知メッセージ {entry-number}が登録番号、{name}がキャラクターの短縮名に置換
-administrator-mail-template = "{name}からの新しいメールがあります"                # 管理者による新着メールの通知メッセージ {name}が送信時に設定した名前に置換
+# 共通
+# {base-path} general.client-host
+
+# フォローされたときの通知メッセージ
+# {entry-number-text} 登録番号(ドメイン表現)
+# {entry-number}      登録番号(int)
+# {name}              キャラクターの短縮名
+followed-template = "{entry-number-text} {name}にフォローされました {base-path}/characters/{entry-number}"
+
+# 新着メールの通知メッセージ
+# {entry-number-text} 登録番号(ドメイン表現)
+# {name}              キャラクターの短縮名
+mail-template = "{entry-number-text} {name}からの新しいメールがあります {base-path}/mails"
+
+# 管理者による新着メールの通知メッセージ
+# {name} 送信時に設定した名前
+administrator-mail-template = "{name}からの新しいメールがあります {base-path}/mails"       
+
+# 返信されたときの通知メッセージ
+# {entry-number-text} 登録番号(ドメイン表現)
+# {name}              キャラクターの短縮名
+# {refer-root}        ルートとなるメッセージID
+replied-template = "{entry-number-text} {name}からのリプライがあります {base-path}/rooms/messages?category=conversation&root={refer-root}"
+
+# 購読中のルームに新着があったときのメッセージ
+# {room-title}        トークルームのタイトル
+# {room-id}           トークルームのID
+# {entry-number-text} 登録番号(ドメイン表現)
+# {name}              キャラクターの短縮名
+subscribe-template = "{room-title}にて{entry-number-text} {name}の新規メッセージがあります {base-path}/rooms/messages?room={room-id}"
+
+# ルームに新規メンバーが追加されたときのメッセージ
+# {room-title}        トークルームのタイトル
+# {room-id}           トークルームのID
+# {entry-number-text} 登録番号(ドメイン表現)
+# {name}              キャラクターの短縮名
+new-member-template = "{room-title}に{entry-number-text} {name}が参加しました {base-path}/rooms/messages?room={room-id}"
 
 [forum]
 initial-forum-groups = [

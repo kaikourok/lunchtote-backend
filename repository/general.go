@@ -3,6 +3,8 @@ package repository
 import "github.com/kaikourok/lunchtote-backend/entity/model"
 
 type generalRepository interface {
+	MigrateDrop() error
+	MigrateLatest() error
 	Initialize() error
 	Update() error
 	Connections() (connections int, err error)

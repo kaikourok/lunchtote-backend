@@ -11,6 +11,7 @@ import (
 	"github.com/kaikourok/lunchtote-backend/infrastructure/notificator"
 	"github.com/kaikourok/lunchtote-backend/registry"
 	"github.com/kaikourok/lunchtote-backend/usecase/control"
+	"github.com/kaikourok/lunchtote-backend/usecase/general"
 	"github.com/spf13/cobra"
 )
 
@@ -107,6 +108,42 @@ func main() {
 			}
 
 			fmt.Println("初期化が完了しました。")
+		},
+	})
+
+	rootCmd.AddCommand(&cobra.Command{
+		Use:   "migrate-latest",
+		Short: "データベースの構造を最新状態にします。",
+		Long:  "データベースの構造を最新状態にします。",
+		Run: func(cmd *cobra.Command, args []string) {
+			usecase := general.NewGeneralUsecase(registry)
+
+			fmt.Println("データベースを最新にマイグレーションします。")
+			err := usecase.MigrateLatest()
+			if err != nil {
+				fmt.Println("エラーが発生しました。強制終了します。")
+				log.Fatal(err)
+			}
+
+			fmt.Println("マイグレーションが完了しました。")
+		},
+	})
+
+	rootCmd.AddCommand(&cobra.Command{
+		Use:   "migrate-drop",
+		Short: "データベース構造を初期化します。",
+		Long:  "データベース構造を初期化します。",
+		Run: func(cmd *cobra.Command, args []string) {
+			usecase := general.NewGeneralUsecase(registry)
+
+			fmt.Println("データベース構造を初期化します。")
+			err := usecase.MigrateDrop()
+			if err != nil {
+				fmt.Println("エラーが発生しました。強制終了します。")
+				log.Fatal(err)
+			}
+
+			fmt.Println("データベース構造を初期化しました。")
 		},
 	})
 

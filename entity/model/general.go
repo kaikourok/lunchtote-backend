@@ -25,15 +25,20 @@ type AnnouncementGuideData struct {
 	Title string `json:"title"`
 }
 
-type AnnouncementEditData struct {
+type AnnouncementData struct {
 	Type     string `json:"type"`
 	Title    string `json:"title"`
 	Overview string `json:"overview"`
 	Content  string `json:"content"`
 }
 
+type AnnouncementEditData struct {
+	AnnouncementData
+	AnnouncedAt time.Time `json:"announcedAt"`
+}
+
 type AnnouncementEditDataUpdate struct {
-	AnnouncementEditData
+	AnnouncementData
 	SilentUpdate bool `json:"silentUpdate"`
 }
 

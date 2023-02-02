@@ -2,9 +2,10 @@ package room
 
 import "github.com/kaikourok/lunchtote-backend/entity/model"
 
-func (db *RoomRepository) RetrieveRoomMessageFetchConfig(characterId int) (configs *[]model.RoomMessageFetchConfig, err error) {
+func (db *RoomRepository) RetrieveRoomMessageFetchConfig(characterId int) (configs *[]model.RoomMessageFetchConfigWithId, err error) {
 	rows, err := db.Queryx(`
 		SELECT
+			id,
 			name,
 			room,
 			search,
@@ -26,10 +27,11 @@ func (db *RoomRepository) RetrieveRoomMessageFetchConfig(characterId int) (confi
 	}
 	defer rows.Close()
 
-	configsSlice := make([]model.RoomMessageFetchConfig, 0, 32)
+	configsSlice := make([]model.RoomMessageFetchConfigWithId, 0, 32)
 	for rows.Next() {
-		var config model.RoomMessageFetchConfig
+		var config model.RoomMessageFetchConfigWithId
 		err = rows.Scan(
+			&config.Id,
 			&config.Name,
 			&config.Room,
 			&config.Search,

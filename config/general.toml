@@ -3,6 +3,7 @@ character-list-items-per-page = 100 # 1ページあたりのキャラクター�
 mails-per-page                = 20  # 1ページあたりのメール表示数
 notifications-per-page        = 100 # 1ページあたりの通知表示数
 forum-topics-per-page         = 20  # 1ページあたりのフォーラムトピック表示件数
+home-announcements-max        = 5   # ホームのアナウンス最大表示数
 
 [validation]
 username-min-length = 4  # ユーザーIDの最小長（ここの設定は1未満だとエラー）
@@ -37,11 +38,11 @@ initial-administrators = [ # 初期化時の管理キャラクター
 ]
 
 [oauth]
-state-length     = 32                # OAuth 2.0で使用するstateの長さ
-verifier-length  = 43                # OAuth 2.0のPKCEで使用するcode_verifierの長さ（43～128）
-signin-url       = "/signin"         # ログインURL（ログイン失敗時に遷移）
-signed-in-uri    = "/home"           # ログイン後URL
-registered-uri   = "/settings/oauth" # OAuth登録後URL（登録完了、失敗時に遷移）
+state-length     = 32                  # OAuth 2.0で使用するstateの長さ
+verifier-length  = 43                  # OAuth 2.0のPKCEで使用するcode_verifierの長さ（43～128）
+signin-url       = "/signin"           # ログインURL（ログイン失敗時に遷移）
+signed-in-uri    = "/home"             # ログイン後URL
+registered-uri   = "/settings/general" # OAuth登録後URL（登録完了、失敗時に遷移）
 
 [oauth.google]
 client-id     = "clientid"
@@ -62,9 +63,43 @@ user-data-url = "https://api.twitter.com/2/users/me"
 scopes        = ["tweet.read", "users.read"]
 
 [notification]
-followed-template           = "{entry-number} {name}にフォローされました"        # フォローされたときの通知メッセージ {entry-number}が登録番号、{name}がキャラクターの短縮名に置換
-mail-template               = "{entry-number} {name}からの新しいメールがあります" # 新着メールの通知メッセージ {entry-number}が登録番号、{name}がキャラクターの短縮名に置換
-administrator-mail-template = "{name}からの新しいメールがあります"                # 管理者による新着メールの通知メッセージ {name}が送信時に設定した名前に置換
+# 共通
+# {base-path} general.client-host
+
+# フォローされたときの通知メッセージ
+# {entry-number-text} 登録番号(ドメイン表現)
+# {entry-number}      登録番号(int)
+# {name}              キャラクターの短縮名
+followed-template = "{entry-number-text} {name}にフォローされました {base-path}/characters/{entry-number}"
+
+# 新着メールの通知メッセージ
+# {entry-number-text} 登録番号(ドメイン表現)
+# {name}              キャラクターの短縮名
+mail-template = "{entry-number-text} {name}からの新しいメールがあります {base-path}/mails"
+
+# 管理者による新着メールの通知メッセージ
+# {name} 送信時に設定した名前
+administrator-mail-template = "{name}からの新しいメールがあります {base-path}/mails"       
+
+# 返信されたときの通知メッセージ
+# {entry-number-text} 登録番号(ドメイン表現)
+# {name}              キャラクターの短縮名
+# {refer-root}        ルートとなるメッセージID
+replied-template = "{entry-number-text} {name}からのリプライがあります {base-path}/rooms/messages?category=conversation&root={refer-root}"
+
+# 購読中のルームに新着があったときのメッセージ
+# {room-title}        トークルームのタイトル
+# {room-id}           トークルームのID
+# {entry-number-text} 登録番号(ドメイン表現)
+# {name}              キャラクターの短縮名
+subscribe-template = "{room-title}にて{entry-number-text} {name}の新規メッセージがあります {base-path}/rooms/messages?room={room-id}"
+
+# ルームに新規メンバーが追加されたときのメッセージ
+# {room-title}        トークルームのタイトル
+# {room-id}           トークルームのID
+# {entry-number-text} 登録番号(ドメイン表現)
+# {name}              キャラクターの短縮名
+new-member-template = "{room-title}に{entry-number-text} {name}が参加しました {base-path}/rooms/messages?room={room-id}"
 
 [forum]
 initial-forum-groups = [

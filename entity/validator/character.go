@@ -26,10 +26,18 @@ func (r UsernameRule) Validate(value interface{}) error {
 		return ErrInvalidLength
 	}
 
+	containsAlphabet := false
 	for _, r := range str {
 		if !(r == '_') && !('0' <= r && r <= '9') && !('A' <= r && r <= 'Z') && !('a' <= r && r <= 'z') {
 			return ErrInvalidRune
 		}
+		if ('A' <= r && r <= 'Z') || ('a' <= r && r <= 'z') {
+			containsAlphabet = true
+		}
+	}
+
+	if !containsAlphabet {
+		return ErrInvalidFormat
 	}
 
 	return nil
@@ -100,4 +108,39 @@ func (r ImagePathRule) Validate(value interface{}) error {
 
 func IsImagePath(characterId *int) ImagePathRule {
 	return ImagePathRule{characterId}
+}
+
+/*-------------------------------------------------------------------------------------------------
+	ImagePathOrEmpty
+-------------------------------------------------------------------------------------------------*/
+
+type ImagePathOrEmptyRule struct {
+	character *int
+}
+
+func (r ImagePathOrEmptyRule) Validate(value interface{}) error {
+	v := reflect.ValueOf(value)
+	if v.Kind() != reflect.String {
+		return ErrInvalidType
+	}
+
+	str := v.String()
+	if str == "" {
+		return nil
+	}
+
+	characterId, err := service.ParseFilePath(str)
+	if err != nil {
+		return ErrInvalidFormat
+	}
+
+	if r.character != nil && characterId != *r.character {
+		return ErrForbidden
+	}
+
+	return nil
+}
+
+func IsImagePathOrEmpty(characterId *int) ImagePathOrEmptyRule {
+	return ImagePathOrEmptyRule{characterId}
 }

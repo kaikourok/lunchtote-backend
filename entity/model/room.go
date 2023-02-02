@@ -38,13 +38,15 @@ type RoomListItem struct {
 		Id   int    `json:"id"`
 		Name string `json:"name"`
 	} `json:"master"`
-	Title         string    `json:"title"`
-	Summary       string    `json:"summary"`
-	Tags          []string  `json:"tags"`
-	Official      bool      `json:"official"`
-	MessagesCount int       `json:"messagesCount"`
-	MembersCount  int       `json:"membersCount"`
-	LastUpdate    time.Time `json:"lastUpdate"`
+	Title           string              `json:"title"`
+	Summary         string              `json:"summary"`
+	Tags            []string            `json:"tags"`
+	Official        bool                `json:"official"`
+	MessagesCount   int                 `json:"messagesCount"`
+	MembersCount    int                 `json:"membersCount"`
+	LastUpdate      time.Time           `json:"lastUpdate"`
+	PostsPerDay     float64             `json:"postsPerDay"`
+	FollowedMembers []CharacterOverview `json:"followedMembers,omitempty"`
 }
 
 type RoomRolePermission struct {
@@ -83,11 +85,7 @@ type RoomRolePriority struct {
 type RoomRoleOverview struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
-}
-
-type RoomRoleWithMembers struct {
-	RoomRole
-	Members []CharacterOverview `json:"members"`
+	Type string `json:"type"`
 }
 
 type RomeMemberWithRoles struct {
@@ -102,9 +100,9 @@ type RoomInviteState struct {
 }
 
 type RoomBanState struct {
-	Banned   CharacterOverview `json:"invited"`
-	Banner   CharacterOverview `json:"inviter"`
-	BannedAt time.Time         `json:"invitedAt"`
+	Banned   CharacterOverview `json:"banned"`
+	Banner   CharacterOverview `json:"banner"`
+	BannedAt time.Time         `json:"bannedAt"`
 }
 
 type RoomMessage struct {
@@ -156,9 +154,9 @@ type RoomMessageEditRequiredData struct {
 	Character struct {
 		Name string `json:"name"`
 	} `json:"character"`
-	Icons        []Icon                   `json:"icons"`
-	Lists        []ListOverview           `json:"lists"`
-	FetchConfigs []RoomMessageFetchConfig `json:"fetchConfigs"`
+	Icons        []Icon                         `json:"icons"`
+	Lists        []ListOverview                 `json:"lists"`
+	FetchConfigs []RoomMessageFetchConfigWithId `json:"fetchConfigs"`
 }
 
 type RoomMessageFetchConfig struct {
@@ -171,6 +169,11 @@ type RoomMessageFetchConfig struct {
 	Character    *int    `json:"character"`
 	RelateFilter *bool   `json:"relateFilter"`
 	Children     *bool   `json:"children"`
+}
+
+type RoomMessageFetchConfigWithId struct {
+	Id int `json:"id"`
+	RoomMessageFetchConfig
 }
 
 type RoomMessageFetchConfigOrder struct {
@@ -188,4 +191,27 @@ type RoomSearchOptions struct {
 	Participant  *string  `json:"participant"`
 	Offset       int      `json:"offset"`
 	Limit        int      `json:"limit"`
+}
+
+type RoomNotificationRelatedData struct {
+	RoomId            int
+	RoomTitle         string
+	UserId            int
+	UserName          string
+	ReferRoot         int
+	RepliedWebhooks   []string
+	SubscribeWebhooks []string
+}
+
+type RoomSubscribeStates struct {
+	Message   bool `json:"message"`
+	NewMember bool `json:"newMember"`
+}
+
+type RoomInitialData struct {
+	Title           string               `json:"title"`
+	Relations       RoomRelations        `json:"relations"`
+	Permissions     RoomMemberPermission `json:"permissions"`
+	SubscribeStates RoomSubscribeStates  `json:"subscribeStates"`
+	Banned          bool                 `json:"banned"`
 }

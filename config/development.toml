@@ -1,10 +1,10 @@
 [general]
-client-host      = "http://localhost"         # フロントエンドの公開URL
-server-host      = "http://localhost:9262"    # バックエンドの公開URL
-port             = 9262                       # アプリケーションの動作ポート
-api-path         = ""                         # APIのベースURL
-upload-path      = "/uploaded-images"         # アップローダーの公開パス
-upload-directory = "/usr/src/uploaded-images" # アップローダーのディレクトリ
+client-host      = "http://localhost"                      # フロントエンドの公開URL
+server-host      = "http://localhost:9262"                 # バックエンドの公開URL
+port             = 9262                                    # アプリケーションの動作ポート
+api-path         = ""                                      # APIのベースURL
+upload-path      = "http://localhost:9262/uploaded-images" # アップローダーの公開パス
+upload-directory = "/usr/src/uploaded-images"              # アップローダーのディレクトリ
 allow-origins    = [
   "http://localhost"
 ] # CORSの許容オリジン群
@@ -17,9 +17,9 @@ username = "lunchtote"  # PostgreSQLのユーザー名
 password = "dbpassword" # PostgreSQLの対象ユーザーのパスワード
 
 [session-store]
-host     = "store"                   # セッション管理用Redisの動作ホスト
-port     = 6379                      # セッション管理用Redisの動作ポート
-password = ""                        # セッション管理用Redisのパスワード
+host     = "store" # セッション管理用Redisの動作ホスト
+port     = 6379    # セッション管理用Redisの動作ポート
+password = ""      # セッション管理用Redisのパスワード
 
 [pubsub]
 host                 = "pubsub"                  # PubSub用Redisの動作ホスト

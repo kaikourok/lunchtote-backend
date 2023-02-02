@@ -17,14 +17,9 @@ func (u *RoomController) RetrieveRoomInviteStates(c *gin.Context) {
 		return
 	}
 
-	states, master, err := u.usecase.RetrieveRoomInviteStates(roomId)
+	states, err := u.usecase.RetrieveRoomInviteStates(session.Get("cid").(int), roomId)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	if master != session.Get("cid").(int) {
-		c.Status(http.StatusForbidden)
 		return
 	}
 

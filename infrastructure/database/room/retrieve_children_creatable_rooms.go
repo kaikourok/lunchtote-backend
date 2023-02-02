@@ -15,7 +15,8 @@ func (db *RoomRepository) RetrieveChildrenCreatableRooms(characterId int) (rooms
 			rooms_members ON (rooms.id = rooms_members.room)
 		WHERE
 			rooms_members.member = $1 AND
-			rooms_members.create_children_room = true;
+			rooms_members.create_children_room = true AND
+			rooms.deleted_at IS NULL;
 	`, characterId)
 	if err != nil {
 		return nil, err

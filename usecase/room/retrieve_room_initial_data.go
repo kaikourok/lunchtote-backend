@@ -1,66 +1,63 @@
 package room
 
 import (
-	"errors"
-
 	"github.com/kaikourok/lunchtote-backend/entity/model"
+	"golang.org/x/sync/errgroup"
 )
 
-func (s *RoomUsecase) RetrieveRoomInitialData(characterId, roomId int) (title string, relations *model.RoomRelations, permissions *model.RoomMemberPermission, banned bool, err error) {
+func (s *RoomUsecase) RetrieveRoomInitialData(characterId, roomId int) (initialData *model.RoomInitialData, err error) {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 
-	type titleResultStruct struct {
-		title string
-		err   error
-	}
+	initialData = &model.RoomInitialData{}
 
-	type permissionsResultStruct struct {
-		permissions *model.RoomMemberPermission
-		banned      bool
-		err         error
-	}
+	var eg errgroup.Group
 
-	type relationsResultStruct struct {
-		relations *model.RoomRelations
-		err       error
-	}
-
-	titleChannel := make(chan titleResultStruct)
-	permissionsChannnel := make(chan permissionsResultStruct)
-	relationsChannel := make(chan relationsResultStruct)
-
-	go func() {
+	eg.Go(func() error {
 		title, err := repository.RetrieveRoomTitle(roomId)
-		titleChannel <- titleResultStruct{title, err}
-	}()
+		if err != nil {
+			logger.Error(err)
+			return err
+		}
 
-	go func() {
-		permissions, banned, err := repository.RetrieveRoomOwnPermissions(characterId, roomId)
-		permissionsChannnel <- permissionsResultStruct{permissions, banned, err}
-	}()
+		initialData.Title = title
+		return nil
+	})
 
-	go func() {
+	eg.Go(func() error {
+		permissions, _, banned, err := repository.RetrieveRoomOwnPermissions(characterId, roomId)
+		if err != nil {
+			logger.Error(err)
+			return err
+		}
+
+		initialData.Permissions = *permissions
+		initialData.Banned = banned
+		return nil
+	})
+
+	eg.Go(func() error {
 		relations, err := repository.RetrieveRoomRelations(roomId)
-		relationsChannel <- relationsResultStruct{relations, err}
-	}()
-
-	titleResult := <-titleChannel
-	permissionsResult := <-permissionsChannnel
-	relationsResult := <-relationsChannel
-
-	if titleResult.err != nil || permissionsResult.err != nil || relationsResult.err != nil {
-		if titleResult.err != nil {
-			logger.Error(titleResult.err)
+		if err != nil {
+			logger.Error(err)
+			return err
 		}
-		if permissionsResult.err != nil {
-			logger.Error(permissionsResult.err)
-		}
-		if relationsResult.err != nil {
-			logger.Error(relationsResult.err)
-		}
-		return "", nil, nil, false, errors.New("データの取得中にエラーが発生しました")
-	}
 
-	return titleResult.title, relationsResult.relations, permissionsResult.permissions, permissionsResult.banned, nil
+		initialData.Relations = *relations
+		return nil
+	})
+
+	eg.Go(func() error {
+		states, err := repository.RetrieveRoomSubscribeStates(characterId, roomId)
+		if err != nil {
+			logger.Error(err)
+			return err
+		}
+
+		initialData.SubscribeStates = *states
+		return nil
+	})
+
+	err = eg.Wait()
+	return
 }

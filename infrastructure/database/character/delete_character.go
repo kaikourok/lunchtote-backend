@@ -1,6 +1,6 @@
 package character
 
-func (db *CharacterRepository) DeleteCharacter(id int) error {
+func (db *CharacterRepository) DeleteCharacter(characterId int) error {
 	_, err := db.Exec(`
 		UPDATE
 			characters
@@ -8,7 +8,7 @@ func (db *CharacterRepository) DeleteCharacter(id int) error {
 			deleted_at = CURRENT_TIMESTAMP
 		WHERE
 			id = $1;
-	`)
+	`, characterId)
 
 	return err
 }

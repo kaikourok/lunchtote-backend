@@ -17,7 +17,8 @@ func (db *RoomRepository) RetrieveOwnedRooms(characterId int) (rooms *[]model.Ro
 			rooms.official,
 			rooms.messages_count,
 			rooms.members_count,
-			rooms.updated_at
+			rooms.updated_at,
+			rooms.messages_count * 86400000.0 / GREATEST((EXTRACT(epoch from CURRENT_TIMESTAMP) - EXTRACT(epoch from rooms.created_at)), 259200000) AS posts_per_day
 		FROM
 			rooms
 		JOIN
@@ -36,7 +37,8 @@ func (db *RoomRepository) RetrieveOwnedRooms(characterId int) (rooms *[]model.Ro
 			rooms.official,
 			rooms.messages_count,
 			rooms.members_count,
-			rooms.updated_at
+			rooms.updated_at,
+			posts_per_day
 		ORDER BY
 			rooms.id;
 	`, characterId)
@@ -61,6 +63,7 @@ func (db *RoomRepository) RetrieveOwnedRooms(characterId int) (rooms *[]model.Ro
 			&room.MessagesCount,
 			&room.MembersCount,
 			&room.LastUpdate,
+			&room.PostsPerDay,
 		)
 
 		if err != nil {

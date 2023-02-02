@@ -1,6 +1,7 @@
 package character
 
 import (
+	"strconv"
 	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -19,24 +20,22 @@ func (s *CharacterUsecase) Follow(characterId int, targetId int) error {
 		return errors.ErrValidate
 	}
 
-	userName, webhook, err := repository.Follow(characterId, targetId)
+	userName, targetWebhook, err := repository.Follow(characterId, targetId)
 	if err != nil {
 		logger.Error(err)
 		return err
 	}
 
-	defer func() {
-		if webhook != "" {
-			s := strings.ReplaceAll(
-				strings.ReplaceAll(
-					config.GetString("notification.followed-template"),
-					"{entry-number}", service.ConvertCharacterIdToText(characterId),
-				),
-				"{name}", userName,
-			)
-			go notificator.SendWebhook(webhook, s)
-		}
-	}()
+	if targetWebhook != "" {
+		replacer := strings.NewReplacer(
+			"{base-path}", config.GetString("general.client-host"),
+			"{entry-number-text}", service.ConvertCharacterIdToText(characterId),
+			"{entry-number}", strconv.Itoa(characterId),
+			"{name}", userName,
+		)
+
+		go notificator.SendWebhook(targetWebhook, replacer.Replace(config.GetString("notification.followed-template")))
+	}
 
 	return nil
 }

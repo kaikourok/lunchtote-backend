@@ -2,7 +2,7 @@ package general
 
 import "github.com/kaikourok/lunchtote-backend/entity/model"
 
-func (db *GeneralRepository) Announce(announce *model.AnnouncementEditData) error {
+func (db *GeneralRepository) Announce(announce *model.AnnouncementData) error {
 	_, err := db.Exec(`
 		INSERT INTO announcements (
 			type,

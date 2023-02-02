@@ -5,7 +5,7 @@ import (
 	"github.com/kaikourok/lunchtote-backend/usecase/errors"
 )
 
-func (s *RoomUsecase) DeleteRoom(characterId int, roomId int) error {
+func (s *RoomUsecase) DeleteRoom(characterId, roomId int) error {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 

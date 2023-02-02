@@ -17,16 +17,11 @@ func (u *RoomController) RetrieveRoomInitialData(c *gin.Context) {
 		return
 	}
 
-	title, relations, permissions, banned, err := u.usecase.RetrieveRoomInitialData(session.Get("cid").(int), roomId)
+	initialData, err := u.usecase.RetrieveRoomInitialData(session.Get("cid").(int), roomId)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"title":       title,
-		"relations":   relations,
-		"permissions": permissions,
-		"banned":      banned,
-	})
+	c.JSON(http.StatusOK, initialData)
 }

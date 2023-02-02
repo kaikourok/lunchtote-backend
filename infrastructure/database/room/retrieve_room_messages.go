@@ -125,11 +125,11 @@ func (db *RoomRepository) RetrieveRoomMessages(characterId int, options *model.R
 		switch fetchMode {
 		case "previous":
 			sql += `
-				messages.id <= :base_point AND
+				messages.id < :base_point AND
 			`
 		case "following":
 			sql += `
-				messages.id >= :base_point AND
+				messages.id > :base_point AND
 			`
 		}
 

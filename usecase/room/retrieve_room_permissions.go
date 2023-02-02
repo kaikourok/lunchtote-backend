@@ -8,7 +8,7 @@ func (s *RoomUsecase) RetrieveRoomOwnPermissions(characterId, roomId int) (permi
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 
-	permissions, banned, err = repository.RetrieveRoomOwnPermissions(characterId, roomId)
+	permissions, _, banned, err = repository.RetrieveRoomOwnPermissions(characterId, roomId)
 	if err != nil {
 		logger.Error(err)
 	}

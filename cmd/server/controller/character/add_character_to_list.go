@@ -18,7 +18,7 @@ func (u *CharacterController) AddCharacterToList(c *gin.Context) {
 	}
 
 	var payload struct {
-		Character *int `json:"character"`
+		Target int `json:"target"`
 	}
 
 	err = c.BindJSON(&payload)
@@ -26,7 +26,7 @@ func (u *CharacterController) AddCharacterToList(c *gin.Context) {
 		return
 	}
 
-	err = u.usecase.AddCharacterToList(session.Get("cid").(int), *payload.Character, list)
+	err = u.usecase.AddCharacterToList(session.Get("cid").(int), payload.Target, list)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return

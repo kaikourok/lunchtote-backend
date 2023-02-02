@@ -6,7 +6,7 @@ import (
 	"github.com/kaikourok/lunchtote-backend/entity/model"
 )
 
-func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int) (permissions *model.RoomMemberPermission, banned bool, err error) {
+func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int) (permissions *model.RoomMemberPermission, roleType string, banned bool, err error) {
 	permissions = &model.RoomMemberPermission{}
 
 	row := db.QueryRowx(`
@@ -17,7 +17,8 @@ func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int
 			use_reply,
 			use_secret,
 			delete_other_message,
-			create_children_room
+			create_children_room,
+			type
 		FROM
 			rooms_members
 		WHERE
@@ -32,11 +33,12 @@ func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int
 		&permissions.UseSecret,
 		&permissions.DeleteOtherMessage,
 		&permissions.CreateChildrenRoom,
+		&roleType,
 	)
 	if err == nil {
-		return permissions, false, nil
+		return permissions, roleType, false, nil
 	} else if err != sql.ErrNoRows {
-		return nil, false, err
+		return nil, "", false, err
 	}
 
 	row = db.QueryRowx(`
@@ -62,13 +64,12 @@ func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int
 	var isInvited, isBanned bool
 	err = row.Scan(&isInvited, &isBanned)
 	if err != nil {
-		return nil, false, err
+		return nil, "", false, err
 	}
 	if isBanned {
-		return nil, true, err
+		return nil, "", true, err
 	}
 
-	var roleType string
 	if isInvited {
 		roleType = "INVITED"
 	} else {
@@ -99,8 +100,8 @@ func (db *RoomRepository) RetrieveRoomOwnPermissions(characterId int, roomId int
 		&permissions.CreateChildrenRoom,
 	)
 	if err != nil {
-		return nil, false, err
+		return nil, "", false, err
 	}
 
-	return permissions, false, nil
+	return permissions, roleType, false, nil
 }

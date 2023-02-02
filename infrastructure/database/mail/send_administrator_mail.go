@@ -4,15 +4,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (db *MailRepository) SendAdministratorMail(targetId *int, name, title, message string) error {
-	//notificationMessage := strings.ReplaceAll(config.GetString("notification.administrator-mail-template"), "{name}", name)
+func (db *MailRepository) SendAdministratorMail(targetId *int, name, title, message string) (webhooks []string, err error) {
+	webhooks = make([]string, 0, 2048)
 
-	webhooks := make([]string, 0, 2048)
-	notificationTargets := make([]int, 0, 2048)
-
-	return db.ExecTx(func(tx *sqlx.Tx) error {
+	err = db.ExecTx(func(tx *sqlx.Tx) error {
 		if targetId == nil {
-			_, err := tx.Exec(`
+			row := tx.QueryRowx(`
 				INSERT INTO mails (
 					name,
 					title,
@@ -23,18 +20,24 @@ func (db *MailRepository) SendAdministratorMail(targetId *int, name, title, mess
 					$2,
 					$3,
 					$4
-				);
+				)
+				
+				RETURNING
+					id;
 			`,
 				name,
 				title,
 				message,
 				targetId,
 			)
+
+			var mailId int
+			err := row.Scan(&mailId)
 			if err != nil {
 				return err
 			}
 
-			row := tx.QueryRowx(`
+			row = tx.QueryRowx(`
 				SELECT
 					CASE webhook_mail
 						WHEN true  THEN webhook
@@ -60,31 +63,45 @@ func (db *MailRepository) SendAdministratorMail(targetId *int, name, title, mess
 			}
 
 			if isTargetNotificationEnable {
-				_, err = tx.Exec(`
+				row = tx.QueryRowx(`
 					INSERT INTO notifications (
 						character,
-						message
+						type
+					) VALUES (
+						$1,
+						'MAIL'
+					)
+					
+					RETURNING
+						id;
+				`, targetId)
+
+				var notificationId int
+				err = row.Scan(&notificationId)
+				if err != nil {
+					return err
+				}
+
+				_, err = tx.Exec(`
+					INSERT INTO notifications_mail_data (
+						notification,
+						mail
 					) VALUES (
 						$1,
 						$2
 					);
-				`, targetId, message)
+				`, notificationId, mailId)
 				if err != nil {
 					return err
 				}
 			}
 
-			if !isTargetDeleted {
-				if webhook != "" {
-					webhooks = append(webhooks, webhook)
-				}
-				if isTargetNotificationEnable {
-					notificationTargets = append(notificationTargets, *targetId)
-				}
+			if !isTargetDeleted && webhook != "" {
+				webhooks = append(webhooks, webhook)
 			}
 		} else {
-			_, err := tx.Exec(`
-				INSERT INTO mails_everyone (
+			row := tx.QueryRowx(`
+				INSERT INTO mass_mails (
 					name,
 					title,
 					message
@@ -92,12 +109,18 @@ func (db *MailRepository) SendAdministratorMail(targetId *int, name, title, mess
 					$1,
 					$2,
 					$3
-				);
+				)
+				
+				RETURNING
+					id;
 			`,
 				name,
 				title,
 				message,
 			)
+
+			var massMailId int
+			err = row.Scan(&massMailId)
 			if err != nil {
 				return err
 			}
@@ -131,13 +154,14 @@ func (db *MailRepository) SendAdministratorMail(targetId *int, name, title, mess
 				FROM
 					characters
 				WHERE
-					webhook      = ''   AND
-					webhook_mail = true AND
+					webhook      != ''   AND
+					webhook_mail  = true AND
 					deleted_at IS NULL;
 			`)
 			if err != nil {
 				return err
 			}
+			defer rows.Close()
 
 			for rows.Next() {
 				var webhook string
@@ -167,42 +191,61 @@ func (db *MailRepository) SendAdministratorMail(targetId *int, name, title, mess
 			}
 
 			rows, err = tx.Queryx(`
+				INSERT INTO (
+					character,
+					type
+				)
+
 				SELECT
-					id
+					characters.id,
+					'MASS_MAIL'
 				FROM
 					characters
 				WHERE
-					notification_mail = true AND deleted_at IS NULL;
+					characters.notification_mail = true AND
+					characters.deleted_at IS NULL
+					
+				RETURNING
+					id;
 			`)
 			if err != nil {
 				return err
 			}
+			defer rows.Close()
 
+			type notificationIdInsertStruct struct {
+				NotificationId int `db:"id"`
+				MassMailId     int `db:"mail_id"`
+			}
+
+			notificationIds := make([]notificationIdInsertStruct, 0, 2048)
 			for rows.Next() {
-				var characterId int
-				err = rows.Scan(&characterId)
+				var notificationId notificationIdInsertStruct
+				err = rows.Scan(&notificationId.NotificationId)
 				if err != nil {
 					return err
 				}
+				notificationId.MassMailId = massMailId
 
-				notificationTargets = append(notificationTargets, characterId)
+				notificationIds = append(notificationIds, notificationId)
+			}
+
+			_, err = db.NamedExec(`
+				INSERT INTO notifications_mass_mail_data (
+					notification,
+					mail
+				) VALUES (
+					:id,
+					:mail_id
+				)
+			`, notificationIds)
+			if err != nil {
+				return err
 			}
 		}
 
 		return nil
 	})
 
-	/* TODO
-	go (func() {
-		for _, webhook := range webhooks {
-			notification.SendWebhook(webhook, notificationMessage)
-		}
-	})()
-
-	go (func() {
-		for _, target := range notificationTargets {
-			notification.SendNotification([]int{target}, notificationMessage)
-		}
-	})()
-	*/
+	return
 }

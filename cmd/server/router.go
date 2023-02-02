@@ -79,14 +79,17 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 		api.POST("/mail-confirm", middleware.Auth(), character.ConfirmEmail)
 		api.POST("/reset-password", character.RequestPasswordResetCode)
 		api.POST("/reset-password-confirm", character.UpdatePasswordByResetCode)
+		api.GET("/announcements", general.RetrieveAnnouncementOverviews)
 		api.GET("/announcements/:id", general.RetrieveAnnouncement)
 
 		{
 			oauthGroup := api.Group("oauth")
 			oauthGroup.GET("/google", character.GoogleOauthRequest)
 			oauthGroup.GET("/google/callback", character.GoogleOauthCallback)
+			oauthGroup.POST("/google/unlink", middleware.Auth(), character.UnlinkGoogle)
 			oauthGroup.GET("/twitter", character.TwitterOauthRequest)
 			oauthGroup.GET("/twitter/callback", character.TwitterOauthCallback)
+			oauthGroup.POST("/twitter/unlink", middleware.Auth(), character.UnlinkTwitter)
 		}
 
 		{
@@ -119,6 +122,8 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 				mainGroup.POST("/upload", middleware.Auth(), character.UploadImages)
 				mainGroup.POST("/upload/base64", middleware.Auth(), character.UploadBase64EncordedImages)
 				mainGroup.GET("/notifications", middleware.Auth(), character.RetrieveNotifications)
+				mainGroup.POST("/notifications/checked", middleware.Auth(), character.UpdateNotificationChecked)
+				mainGroup.POST("/delete", middleware.Auth(), character.DeleteCharacter)
 
 				{
 					settingGroup := mainGroup.Group("settings")
@@ -130,6 +135,10 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					settingGroup.POST("/profile-images", middleware.Auth(), character.UpdateProfileImages)
 					settingGroup.GET("/uploaded-images", middleware.Auth(), character.RetrieveUploadedImages)
 					settingGroup.POST("/uploaded-images/delete", middleware.Auth(), character.DeleteUploadedImages)
+					settingGroup.GET("/other", middleware.Auth(), character.RetrieveOtherSettings)
+					settingGroup.POST("/other", middleware.Auth(), character.UpdateOtherSettings)
+					settingGroup.POST("/email", middleware.Auth(), character.RequestRegisterEmail)
+					settingGroup.POST("/email/unregister", middleware.Auth(), character.UnregisterEmail)
 
 					{
 						layeringGroup := settingGroup.Group("layerings")
@@ -153,8 +162,10 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					listGroup := mainGroup.Group("lists")
 					listGroup.POST("", middleware.Auth(), character.CreateList)
 					listGroup.GET("", middleware.Auth(), character.RetrieveLists)
+					listGroup.GET("/:list", middleware.Auth(), character.RetrieveList)
 					listGroup.POST("/:list/add", middleware.Auth(), character.AddCharacterToList)
 					listGroup.POST("/:list/remove", middleware.Auth(), character.RemoveCharacterFromList)
+					listGroup.POST("/:list/rename", middleware.Auth(), character.RenameList)
 					listGroup.POST("/:list/delete", middleware.Auth(), character.DeleteList)
 					listGroup.POST("/:list/search-target", middleware.Auth(), character.RetrieveListSuggestions)
 				}
@@ -166,6 +177,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 			roomsGroup.POST("", middleware.Auth(), room.CreateRoom)
 			roomsGroup.GET("/create-data", middleware.Auth(), room.RetrieveRoomCreateData)
 			roomsGroup.GET("/owned", middleware.Auth(), room.RetrieveOwnedRooms)
+			roomsGroup.GET("/membered", middleware.Auth(), room.RetrieveMemberRooms)
 			roomsGroup.GET("/messages", middleware.Auth(), room.RetrieveRoomMessages)
 			roomsGroup.GET("/message-edit-data", middleware.Auth(), room.RetrieveRoomMessageEditRequiredData)
 			roomsGroup.POST("/search", middleware.Auth(), room.SearchRooms)
@@ -184,11 +196,14 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 				roomGroup.GET("", middleware.Auth(), room.RetrieveRoomInitialData)
 				roomGroup.GET("/permissions", middleware.Auth(), room.RetrieveRoomOwnPermissions)
 				roomGroup.POST("/messages", middleware.Auth(), room.PostRoomMessage)
+				roomGroup.POST("/message-event/subscribe", middleware.Auth(), room.SubscribeRoomMessage)
+				roomGroup.POST("/message-event/unsubscribe", middleware.Auth(), room.UnsubscribeRoomMessage)
+				roomGroup.POST("/new-member-event/subscribe", middleware.Auth(), room.SubscribeRoomNewMember)
+				roomGroup.POST("/new-member-event/unsubscribe", middleware.Auth(), room.UnsubscribeRoomNewMember)
 
 				{
 					controlGroup := roomGroup.Group("control")
 					controlGroup.GET("/general", middleware.Auth(), room.RetrieveRoomGeneralSettings)
-					controlGroup.GET("/role", middleware.Auth(), room.RetrieveRoomRoleSettings)
 					controlGroup.GET("/members", middleware.Auth(), room.RetrieveRoomMembers)
 					controlGroup.GET("/invite", middleware.Auth(), room.RetrieveRoomInviteStates)
 					controlGroup.GET("/ban", middleware.Auth(), room.RetrieveRoomBanStates)
@@ -199,9 +214,16 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					controlGroup.POST("/cancel-invite", middleware.Auth(), room.CancelInviteCharacterToRoom)
 					controlGroup.POST("/cancel-ban", middleware.Auth(), room.CancelBanCharacterFromRoom)
 					controlGroup.POST("/delete", middleware.Auth(), room.DeleteRoom)
-					controlGroup.POST("/role/create", middleware.Auth(), room.CreateRole)
-					controlGroup.POST("/role/delete", middleware.Auth(), room.DeleteRole)
-					controlGroup.POST("/role/update-priorities", middleware.Auth(), room.UpdateRolePriorities)
+					controlGroup.POST("/search-invite-target", middleware.Auth(), room.RetrieveRoomInviteSuggestions)
+
+					{
+						roleGroup := controlGroup.Group("role")
+						roleGroup.GET("", middleware.Auth(), room.RetrieveRoomRoleSettings)
+						roleGroup.POST("/create", middleware.Auth(), room.CreateRole)
+						roleGroup.POST("/delete", middleware.Auth(), room.DeleteRole)
+						roleGroup.POST("/:role/update", middleware.Auth(), room.UpdateRolePermissions)
+						roleGroup.POST("/update-priorities", middleware.Auth(), room.UpdateRolePriorities)
+					}
 				}
 			}
 		}
@@ -243,6 +265,14 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 
 		{
 			controlGroup := api.Group("control")
+
+			{
+				gameGroup := controlGroup.Group("game")
+				gameGroup.POST("/announcements", middleware.AuthAdministrator(), control.Announce)
+				gameGroup.GET("/announcements/:id", middleware.AuthAdministrator(), control.RetrieveAnnouncementEditData)
+				gameGroup.POST("/announcements/:id/update", middleware.AuthAdministrator(), control.UpdateAnnouncement)
+			}
+
 			{
 				debugGroup := controlGroup.Group("debug")
 				debugGroup.POST("/dummy-character", middleware.AuthAdministrator(), control.CreateDummyCharacters)

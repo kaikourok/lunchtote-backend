@@ -23,10 +23,6 @@ dev-deps:
 # ホットリロード
 	go install github.com/cosmtrek/air@latest
 
-.PHONY: gen-buf
-gen-buf:
-	cd infrastructure/connect && buf generate
-
 .PHONY: test
 test:
 	go test -v ./...
@@ -36,7 +32,19 @@ check:
 	go vet ./...
 	staticcheck ./...
 
+.PHONY: migrate-latest
+migrate-latest:
+	make cli && ./build/cli migrate-latest
+
+.PHONY: migrate-drop
+migrate-drop:
+	make cli && ./build/cli migrate-drop
+
+# make migrate-create name=...
+.PHONY: migrate-create
+migrate-create:
+	migrate create -ext sql -dir infrastructure/database/migrations -seq ${name}
+
 .PHONY: init
 init:
-	make cli
-	./build/cli init
+	make cli && ./build/cli migrate-drop && ./build/cli migrate-latest && ./build/cli init

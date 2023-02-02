@@ -9,7 +9,7 @@ import (
 func (db *GeneralRepository) createMigrateInstance() (*migrate.Migrate, error) {
 	driver, err := postgres.WithInstance(db.DB.DB, &postgres.Config{})
 	if err != nil {
-
+		return nil, err
 	}
 
 	return migrate.NewWithDatabaseInstance(

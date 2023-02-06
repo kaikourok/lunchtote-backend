@@ -12,7 +12,8 @@ func (db *CharacterRepository) RetrieveProfileEditData(id int) (data *model.Prof
 			nickname,
 			summary,
 			profile,
-			Mainicon,
+			mainicon,
+			list_image,
 			ARRAY(SELECT tag FROM characters_tags WHERE character = $1)
 		FROM
 			characters
@@ -27,6 +28,7 @@ func (db *CharacterRepository) RetrieveProfileEditData(id int) (data *model.Prof
 		&data.Summary,
 		&data.Profile,
 		&data.Mainicon,
+		&data.ListImage,
 		pq.Array(&data.Tags),
 	)
 	return

@@ -118,6 +118,7 @@ CREATE TABLE characters (
   summary                      TEXT      NOT NULL DEFAULT '',
   profile                      TEXT      NOT NULL DEFAULT '',
   mainicon                     TEXT      NOT NULL DEFAULT '',
+  list_image                   TEXT      NOT NULL DEFAULT '',
 	ap_recover_at                TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   diary                        TEXT,
   diary_title                  TEXT,

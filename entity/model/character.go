@@ -21,12 +21,13 @@ type ProfileImage struct {
 }
 
 type ProfileEditData struct {
-	Name     string   `json:"name"`
-	Nickname string   `json:"nickname"`
-	Summary  string   `json:"summary"`
-	Profile  string   `json:"profile"`
-	Mainicon string   `json:"Mainicon"`
-	Tags     []string `json:"tags"`
+	Name      string   `json:"name"`
+	Nickname  string   `json:"nickname"`
+	Summary   string   `json:"summary"`
+	Profile   string   `json:"profile"`
+	Mainicon  string   `json:"mainicon"`
+	ListImage string   `json:"listImage"`
+	Tags      []string `json:"tags"`
 }
 
 type Profile struct {
@@ -52,7 +53,7 @@ type CharacterListItem struct {
 	Name        string   `json:"name"`
 	Nickname    string   `json:"nickname"`
 	Summary     string   `json:"summary"`
-	Mainicon    string   `json:"Mainicon"`
+	Mainicon    string   `json:"mainicon"`
 	Tags        []string `json:"tags"`
 	IsFollowing *bool    `json:"isFollowing,omitempty"`
 	IsFollowed  *bool    `json:"isFollowed,omitempty"`

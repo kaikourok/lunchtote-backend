@@ -4,7 +4,7 @@ import (
 	"github.com/kaikourok/lunchtote-backend/entity/model"
 )
 
-func (s *CharacterUsecase) RetrieveCharacterList(characterId *int, page int) (list *[]model.CharacterListItem, maxId int, err error) {
+func (s *CharacterUsecase) RetrieveCharacterList(characterId *int, page int) (list *[]model.AllCharacterListItem, maxId int, err error) {
 	logger := s.registry.GetLogger()
 	config := s.registry.GetConfig()
 	repository := s.registry.GetRepository()

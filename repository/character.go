@@ -14,7 +14,7 @@ type characterRepository interface {
 	CreateDummyCharacters(number int, name, nickname, summary, profile, password string, notificationTokenGenerator func() string) error
 
 	// キャラクター情報取得関連
-	RetrieveCharacterList(id *int, start, end int) (list *[]model.CharacterListItem, maxId int, err error)
+	RetrieveCharacterList(id *int, start, end int) (list *[]model.AllCharacterListItem, maxId int, err error)
 	RetrieveProfile(userId *int, targetId int) (*model.Profile, error)
 	RetrieveHomeData(userId int) (*model.HomeData, error)
 	RetrieveCharacterNickname(characterId int) (nickname string, err error)
@@ -62,11 +62,11 @@ type characterRepository interface {
 	Unmute(userId, targetId int) error
 	Unfollow(userId, targetId int) error
 	Unblock(userId, targetId int) error
-	RetrieveFollowList(userId, targetId int) (list *[]model.CharacterListItem, err error)
-	RetrieveFollowerList(userId, targetId int) (list *[]model.CharacterListItem, err error)
-	RetrieveRelatedFollowerList(userId, targetId int) (list *[]model.CharacterListItem, err error)
-	RetrieveMuteList(id int) (list *[]model.CharacterListItem, err error)
-	RetrieveBlockList(id int) (list *[]model.CharacterListItem, err error)
+	RetrieveFollowList(userId, targetId int) (list *[]model.GeneralCharacterListItem, err error)
+	RetrieveFollowerList(userId, targetId int) (list *[]model.GeneralCharacterListItem, err error)
+	RetrieveRelatedFollowerList(userId, targetId int) (list *[]model.GeneralCharacterListItem, err error)
+	RetrieveMuteList(id int) (list *[]model.GeneralCharacterListItem, err error)
+	RetrieveBlockList(id int) (list *[]model.GeneralCharacterListItem, err error)
 
 	// リスト操作
 	RetrieveListOwner(listId int) (characterId int, err error)

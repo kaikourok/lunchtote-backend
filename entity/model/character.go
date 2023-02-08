@@ -48,7 +48,20 @@ type Profile struct {
 	IsBlocked       bool     `json:"isBlocked"`
 }
 
-type CharacterListItem struct {
+type AllCharacterListItem struct {
+	Id          int      `json:"id"`
+	Name        string   `json:"name"`
+	Nickname    string   `json:"nickname"`
+	Summary     string   `json:"summary"`
+	ListImage   string   `json:"listImage"`
+	Tags        []string `json:"tags"`
+	IsFollowing *bool    `json:"isFollowing,omitempty"`
+	IsFollowed  *bool    `json:"isFollowed,omitempty"`
+	IsMuting    *bool    `json:"isMuting,omitempty"`
+	IsBlocking  *bool    `json:"isBlocking,omitempty"`
+}
+
+type GeneralCharacterListItem struct {
 	Id          int      `json:"id"`
 	Name        string   `json:"name"`
 	Nickname    string   `json:"nickname"`

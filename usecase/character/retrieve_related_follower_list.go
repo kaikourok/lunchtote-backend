@@ -6,7 +6,7 @@ import (
 	usecaseErrors "github.com/kaikourok/lunchtote-backend/usecase/errors"
 )
 
-func (s *CharacterUsecase) RetrieveRelatedFollowerList(characterId, targetId int) (list *[]model.CharacterListItem, err error) {
+func (s *CharacterUsecase) RetrieveRelatedFollowerList(characterId, targetId int) (list *[]model.GeneralCharacterListItem, err error) {
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 

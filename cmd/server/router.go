@@ -268,6 +268,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 
 			{
 				gameGroup := controlGroup.Group("game")
+				gameGroup.POST("/update", middleware.AuthAdministrator(), control.Update)
 				gameGroup.POST("/announcements", middleware.AuthAdministrator(), control.Announce)
 				gameGroup.GET("/announcements/:id", middleware.AuthAdministrator(), control.RetrieveAnnouncementEditData)
 				gameGroup.POST("/announcements/:id/update", middleware.AuthAdministrator(), control.UpdateAnnouncement)

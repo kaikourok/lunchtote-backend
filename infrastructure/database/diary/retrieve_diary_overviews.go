@@ -15,7 +15,9 @@ func (db *DiaryRepository) RetrieveDiaryOverviews(characterId, nth int) (diaries
 			characters ON (diaries.character = characters.id)
 		WHERE
 			diaries.nth = $2 AND
-			diaries.character = $1 OR EXISTS (SELECT * FROM follows WHERE follower = $1 AND followed = diaries.character);
+			diaries.character = $1 OR EXISTS (SELECT * FROM follows WHERE follower = $1 AND followed = diaries.character)
+		ORDER BY
+			characters.id;
 	`, characterId, nth)
 	if err != nil {
 		return nil, err

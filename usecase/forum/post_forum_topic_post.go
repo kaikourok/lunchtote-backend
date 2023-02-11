@@ -27,7 +27,7 @@ func (s *ForumUsecase) PostForumTopicPost(characterId *int, isAdministrator *boo
 		savePost.EditPassword = &hashed
 	}
 
-	postId, err = repository.PostForumTopicPost(characterId, s.generateIdentifier(ip), postId, &savePost)
+	postId, err = repository.PostForumTopicPost(characterId, s.generateIdentifier(ip), topicId, &savePost)
 	if err != nil {
 		logger.Error(err)
 		return

@@ -6,7 +6,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (db *CharacterRepository) RetrieveCharacterList(id *int, start, end int) (list *[]model.CharacterListItem, maxId int, err error) {
+func (db *CharacterRepository) RetrieveCharacterList(id *int, start, end int) (list *[]model.AllCharacterListItem, maxId int, err error) {
 	var rows *sqlx.Rows
 	if id == nil {
 		// 非ログインユーザー視点
@@ -29,7 +29,7 @@ func (db *CharacterRepository) RetrieveCharacterList(id *int, start, end int) (l
 				characters.name,
 				characters.nickname,
 				characters.summary,
-				characters.Mainicon,
+				characters.list_image,
 				ARRAY_REMOVE(ARRAY_AGG(characters_tags.tag ORDER BY characters_tags.id), NULL),
 				COALESCE((SELECT id FROM max_id), 0) AS max_id,
 				null,
@@ -48,7 +48,7 @@ func (db *CharacterRepository) RetrieveCharacterList(id *int, start, end int) (l
 				characters.name,
 				characters.nickname,
 				characters.summary,
-				characters.Mainicon,
+				characters.list_image,
 				max_id
 			ORDER BY
 				characters.id;
@@ -78,7 +78,7 @@ func (db *CharacterRepository) RetrieveCharacterList(id *int, start, end int) (l
 				characters.name,
 				characters.nickname,
 				characters.summary,
-				characters.Mainicon,
+				characters.list_image,
 				ARRAY_REMOVE(ARRAY_AGG(characters_tags.tag ORDER BY characters_tags.id), NULL),
 				COALESCE((SELECT id FROM max_id), 0) AS max_id,
 				characters.id IN (SELECT * FROM follow_list),
@@ -113,7 +113,7 @@ func (db *CharacterRepository) RetrieveCharacterList(id *int, start, end int) (l
 				characters.name,
 				characters.nickname,
 				characters.summary,
-				characters.Mainicon,
+				characters.list_image,
 				max_id
 			ORDER BY
 				characters.id;
@@ -124,17 +124,17 @@ func (db *CharacterRepository) RetrieveCharacterList(id *int, start, end int) (l
 	}
 	defer rows.Close()
 
-	characterList := make([]model.CharacterListItem, 0, end-start+1)
+	characterList := make([]model.AllCharacterListItem, 0, end-start+1)
 
 	for i := 0; rows.Next(); i++ {
-		var listItem model.CharacterListItem
+		var listItem model.AllCharacterListItem
 
 		err = rows.Scan(
 			&listItem.Id,
 			&listItem.Name,
 			&listItem.Nickname,
 			&listItem.Summary,
-			&listItem.Mainicon,
+			&listItem.ListImage,
 			pq.Array(&listItem.Tags),
 			&maxId,
 			&listItem.IsFollowing,

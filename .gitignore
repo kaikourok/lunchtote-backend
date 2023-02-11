@@ -12,3 +12,6 @@ go.work
 
 # Airにより生成されるビルドエラーログ
 build-errors.log
+
+# VSCodeで生成されるセッション保持用ファイル
+/tmp/

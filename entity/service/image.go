@@ -22,6 +22,7 @@ type ImageTypeStruct struct {
 	Icon         ImageTypeId
 	IconFragment ImageTypeId
 	ProfileImage ImageTypeId
+	ListImage    ImageTypeId
 }
 
 var ImageType ImageTypeStruct
@@ -32,8 +33,11 @@ func init() {
 		Icon:         "ICON",
 		IconFragment: "ICON_FRAGMENT",
 		ProfileImage: "PROFILE_IMAGE",
+		ListImage:    "LIST_IMAGE",
 	}
 }
+
+const profileImageHeight = 700
 
 func ConvertImage(imageBuffer *bytes.Buffer, convertType ImageTypeId) (*bytes.Buffer, string, error) {
 	// 画像が適合規格であれば画像をそのまま返し、
@@ -47,11 +51,17 @@ func ConvertImage(imageBuffer *bytes.Buffer, convertType ImageTypeId) (*bytes.Bu
 	// 変換先フォーマット
 	//  PNG 120px平方 Bilinear
 
-	// アイコンの場合
+	// キャラクターリスト画像の場合
 	// 不適合条件
-	//  ・高さが600pxでない
+	//　・画像のサイズが横180px高さ240pxでない
 	// 変換先フォーマット
-	//  PNG 高さ600px 横幅アスペクト比保持伸縮 Bilinear
+	//　PNG 横180px 高さ240px Bilinear
+
+	// プロフィール画像の場合
+	// 不適合条件
+	//  ・高さが700pxでない
+	// 変換先フォーマット
+	//  PNG 高さ700px 横幅アスペクト比保持伸縮 Bilinear
 
 	// 単純にimageBufferを読み出すとio.Readerが変わるためひと手間加える
 	image, extension, err := image.Decode(bytes.NewReader(imageBuffer.Bytes()))
@@ -73,9 +83,20 @@ func ConvertImage(imageBuffer *bytes.Buffer, convertType ImageTypeId) (*bytes.Bu
 		}
 
 		return resizedImageBuffer, "png", nil
-	} else if convertType == ImageType.ProfileImage && imageHeight != 600 {
+	} else if convertType == ImageType.ListImage && (imageWidth != 180 || imageHeight != 240) {
+		// 画像サイズが不適合であれば変換（キャラクターリスト画像）
+		resizedImage := resize.Resize(180, 240, image, resize.Bilinear)
+
+		resizedImageBuffer := &bytes.Buffer{}
+		err = png.Encode(resizedImageBuffer, resizedImage)
+		if err != nil {
+			return nil, "", err
+		}
+
+		return resizedImageBuffer, "png", nil
+	} else if convertType == ImageType.ProfileImage && imageHeight != profileImageHeight {
 		// 画像サイズが不適合であれば変換（プロフィール画像）
-		resizedImage := resize.Resize(uint(imageWidth*600/imageHeight), 600, image, resize.Bilinear)
+		resizedImage := resize.Resize(uint(imageWidth*profileImageHeight/imageHeight), profileImageHeight, image, resize.Bilinear)
 
 		resizedImageBuffer := &bytes.Buffer{}
 		err = png.Encode(resizedImageBuffer, resizedImage)

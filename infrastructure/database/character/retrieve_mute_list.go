@@ -5,7 +5,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (db *CharacterRepository) RetrieveMuteList(id int) (list *[]model.CharacterListItem, err error) {
+func (db *CharacterRepository) RetrieveMuteList(id int) (list *[]model.GeneralCharacterListItem, err error) {
 	rows, err := db.Queryx(`
 		WITH
 			follow_list   AS (SELECT followed FROM follows WHERE follower = $1),
@@ -15,7 +15,7 @@ func (db *CharacterRepository) RetrieveMuteList(id int) (list *[]model.Character
 			characters.id,
 			characters.name,
 			characters.summary,
-			characters.Mainicon,
+			characters.mainicon,
 			ARRAY_REMOVE(ARRAY_AGG(characters_tags.tag ORDER BY characters_tags.id), NULL),
 			characters.id IN follow_list,
 			characters.id IN follower_list,
@@ -33,7 +33,7 @@ func (db *CharacterRepository) RetrieveMuteList(id int) (list *[]model.Character
 			characters.id,
 			characters.name,
 			characters.summary,
-			characters.Mainicon
+			characters.mainicon
 		ORDER BY
 			characters_mutes.muted_at DESC;
 	`, id)
@@ -42,9 +42,9 @@ func (db *CharacterRepository) RetrieveMuteList(id int) (list *[]model.Character
 	}
 	defer rows.Close()
 
-	characterList := make([]model.CharacterListItem, 0, 64)
+	characterList := make([]model.GeneralCharacterListItem, 0, 64)
 	for i := 0; rows.Next(); i++ {
-		var listItem model.CharacterListItem
+		var listItem model.GeneralCharacterListItem
 
 		err = rows.Scan(
 			&listItem.Id,

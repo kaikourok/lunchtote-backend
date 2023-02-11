@@ -19,7 +19,7 @@ func (db *DiaryRepository) RetrieveDiary(characterId *int, targetId, nth int) (*
 						(blocker = $1 AND blocked = $2) OR
 						(blocker = $2 AND blocked = $1)
 				);
-		`)
+		`, characterId, targetId)
 
 		var isInvalid bool
 		err := row.Scan(&isInvalid)
@@ -43,7 +43,7 @@ func (db *DiaryRepository) RetrieveDiary(characterId *int, targetId, nth int) (*
 		FROM
 			diaries
 		JOIN
-			characters ON (diaries.character = characters.character_id)
+			characters ON (diaries.character = characters.id)
 		WHERE
 			diaries.character = $1 AND diaries.nth = $2;
 	`, targetId, nth)

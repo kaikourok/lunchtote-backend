@@ -11,12 +11,16 @@ func (s *CharacterUsecase) UpdateProfileImages(characterId int, images *[]model.
 	logger := s.registry.GetLogger()
 	repository := s.registry.GetRepository()
 
-	err := validation.Validate(images, validation.Required, validation.Each(validator.IsImagePath(&characterId)))
-	if err != nil {
-		return errors.ErrValidate
+	for _, image := range *images {
+		err := validation.ValidateStruct(&image,
+			validation.Field(&image.Path, validator.IsImagePath(&characterId)),
+		)
+		if err != nil {
+			return errors.ErrValidate
+		}
 	}
 
-	err = repository.UpdateProfileImages(characterId, images)
+	err := repository.UpdateProfileImages(characterId, images)
 	if err != nil {
 		logger.Error(err)
 		return err

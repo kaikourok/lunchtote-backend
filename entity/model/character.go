@@ -21,38 +21,58 @@ type ProfileImage struct {
 }
 
 type ProfileEditData struct {
-	Name     string   `json:"name"`
-	Nickname string   `json:"nickname"`
-	Summary  string   `json:"summary"`
-	Profile  string   `json:"profile"`
-	Mainicon string   `json:"Mainicon"`
-	Tags     []string `json:"tags"`
+	Name      string   `json:"name"`
+	Nickname  string   `json:"nickname"`
+	Summary   string   `json:"summary"`
+	Profile   string   `json:"profile"`
+	Mainicon  string   `json:"mainicon"`
+	ListImage string   `json:"listImage"`
+	Tags      []string `json:"tags"`
+}
+
+type ProfileDiaryData struct {
+	Nth   int    `json:"nth"`
+	Title string `json:"title"`
 }
 
 type Profile struct {
-	Id              int      `json:"id"`
-	Name            string   `json:"name"`
-	Nickname        string   `json:"nickname"`
-	Summary         string   `json:"summary"`
-	Profile         string   `json:"profile"`
-	ProfileImages   []string `json:"profileImages"`
-	Tags            []string `json:"tags"`
-	FollowingNumber int      `json:"followingNumber"`
-	FollowedNumber  int      `json:"followedNumber"`
-	Icons           []Icon   `json:"icons"`
-	IsFollowing     bool     `json:"isFollowing"`
-	IsFollowed      bool     `json:"isFollowed"`
-	IsMuting        bool     `json:"isMuting"`
-	IsBlocking      bool     `json:"isBlocking"`
-	IsBlocked       bool     `json:"isBlocked"`
+	Id              int                `json:"id"`
+	Name            string             `json:"name"`
+	Nickname        string             `json:"nickname"`
+	Summary         string             `json:"summary"`
+	Profile         string             `json:"profile"`
+	ProfileImages   []string           `json:"profileImages"`
+	Tags            []string           `json:"tags"`
+	FollowingNumber int                `json:"followingNumber"`
+	FollowedNumber  int                `json:"followedNumber"`
+	Icons           []Icon             `json:"icons"`
+	IsFollowing     bool               `json:"isFollowing"`
+	IsFollowed      bool               `json:"isFollowed"`
+	IsMuting        bool               `json:"isMuting"`
+	IsBlocking      bool               `json:"isBlocking"`
+	IsBlocked       bool               `json:"isBlocked"`
+	ExistingDiaries []ProfileDiaryData `json:"existingDiaries"`
 }
 
-type CharacterListItem struct {
+type AllCharacterListItem struct {
 	Id          int      `json:"id"`
 	Name        string   `json:"name"`
 	Nickname    string   `json:"nickname"`
 	Summary     string   `json:"summary"`
-	Mainicon    string   `json:"Mainicon"`
+	ListImage   string   `json:"listImage"`
+	Tags        []string `json:"tags"`
+	IsFollowing *bool    `json:"isFollowing,omitempty"`
+	IsFollowed  *bool    `json:"isFollowed,omitempty"`
+	IsMuting    *bool    `json:"isMuting,omitempty"`
+	IsBlocking  *bool    `json:"isBlocking,omitempty"`
+}
+
+type GeneralCharacterListItem struct {
+	Id          int      `json:"id"`
+	Name        string   `json:"name"`
+	Nickname    string   `json:"nickname"`
+	Summary     string   `json:"summary"`
+	Mainicon    string   `json:"mainicon"`
 	Tags        []string `json:"tags"`
 	IsFollowing *bool    `json:"isFollowing,omitempty"`
 	IsFollowed  *bool    `json:"isFollowed,omitempty"`

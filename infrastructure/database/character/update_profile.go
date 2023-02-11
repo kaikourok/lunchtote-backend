@@ -11,11 +11,12 @@ func (db *CharacterRepository) UpdateProfile(id int, profile *model.ProfileEditD
 			UPDATE
 				characters
 			SET
-				name     = $2,
-				nickname = $3,
-				summary  = $4,
-				profile  = $5,
-				mainicon = $6
+				name       = $2,
+				nickname   = $3,
+				summary    = $4,
+				profile    = $5,
+				mainicon   = $6,
+				list_image = $7
 			WHERE
 				id = $1;
 		`,
@@ -25,6 +26,7 @@ func (db *CharacterRepository) UpdateProfile(id int, profile *model.ProfileEditD
 			profile.Summary,
 			profile.Profile,
 			profile.Mainicon,
+			profile.ListImage,
 		)
 		if err != nil {
 			return err

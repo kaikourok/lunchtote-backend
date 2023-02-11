@@ -20,6 +20,8 @@ func (u *CharacterController) UploadImages(c *gin.Context) {
 		imageType = service.ImageType.IconFragment
 	case "profile-image":
 		imageType = service.ImageType.ProfileImage
+	case "list-image":
+		imageType = service.ImageType.ListImage
 	default:
 		imageType = service.ImageType.General
 	}

@@ -5,7 +5,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (db *CharacterRepository) RetrieveBlockList(id int) (list *[]model.CharacterListItem, err error) {
+func (db *CharacterRepository) RetrieveBlockList(id int) (list *[]model.GeneralCharacterListItem, err error) {
 	rows, err := db.Queryx(`
 		WITH
 			mute_list AS (SELECT followed FROM follows WHERE follower = $1)
@@ -13,7 +13,7 @@ func (db *CharacterRepository) RetrieveBlockList(id int) (list *[]model.Characte
 			characters.id,
 			characters.name,
 			characters.summary,
-			characters.Mainicon,
+			characters.mainicon,
 			ARRAY_REMOVE(ARRAY_AGG(characters_tags.tag ORDER BY characters_tags.id), NULL),
 			characters.id IN (SELECT * FROM mute_list)
 		FROM
@@ -29,7 +29,7 @@ func (db *CharacterRepository) RetrieveBlockList(id int) (list *[]model.Characte
 			characters.id,
 			characters.name,
 			characters.summary,
-			characters.Mainicon,
+			characters.mainicon,
 			blocks.blocked_at
 		ORDER BY
 			blocks.blocked_at DESC;
@@ -39,9 +39,9 @@ func (db *CharacterRepository) RetrieveBlockList(id int) (list *[]model.Characte
 	}
 	defer rows.Close()
 
-	characterList := make([]model.CharacterListItem, 0, 64)
+	characterList := make([]model.GeneralCharacterListItem, 0, 64)
 	for i := 0; rows.Next(); i++ {
-		var listItem model.CharacterListItem
+		var listItem model.GeneralCharacterListItem
 
 		err = rows.Scan(
 			&listItem.Id,

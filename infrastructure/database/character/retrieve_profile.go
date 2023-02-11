@@ -38,6 +38,24 @@ func (db *CharacterRepository) RetrieveProfile(userId *int, targetId int) (*mode
 						) icon_rows
 				)
 			, '[]'::JSON) AS icons_json,
+			COALESCE(
+				(
+					SELECT 
+						json_agg(row_to_json(character_diaries))
+					FROM
+						(
+							SELECT
+								nth,
+								title
+							FROM
+								diaries
+							WHERE
+								character = $1
+							ORDER BY
+								nth
+						) character_diaries
+				)
+			, '[]'::JSON) AS diaries_json,
 			COALESCE((SELECT true FROM follows WHERE follower = $2 AND followed = $1), false),
 			COALESCE((SELECT true FROM follows WHERE followed = $2 AND follower = $1), false),
 			COALESCE((SELECT true FROM mutes   WHERE muter    = $2 AND muted    = $1), false),
@@ -53,7 +71,7 @@ func (db *CharacterRepository) RetrieveProfile(userId *int, targetId int) (*mode
 
 	character := model.Profile{}
 
-	var iconsJsonReader string
+	var iconsJsonReader, diariesJsonReader string
 	err := row.Scan(
 		&character.Id,
 		&character.Name,
@@ -65,6 +83,7 @@ func (db *CharacterRepository) RetrieveProfile(userId *int, targetId int) (*mode
 		&character.FollowingNumber,
 		&character.FollowedNumber,
 		&iconsJsonReader,
+		&diariesJsonReader,
 		&character.IsFollowing,
 		&character.IsFollowed,
 		&character.IsMuting,
@@ -76,6 +95,11 @@ func (db *CharacterRepository) RetrieveProfile(userId *int, targetId int) (*mode
 	}
 
 	err = json.Unmarshal([]byte(iconsJsonReader), &character.Icons)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal([]byte(diariesJsonReader), &character.ExistingDiaries)
 	if err != nil {
 		return nil, err
 	}

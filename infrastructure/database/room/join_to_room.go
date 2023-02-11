@@ -64,7 +64,7 @@ func (db *RoomRepository) JoinToRoom(targetId, roomId int) (room *model.RoomOver
 				characters.webhook != ''             AND
 				characters.webhook_new_member = true AND
 				characters.deleted_at IS NULL;
-		`)
+		`, targetId, roomId)
 		if err != nil {
 			return err
 		}

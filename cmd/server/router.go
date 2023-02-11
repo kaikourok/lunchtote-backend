@@ -139,6 +139,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					settingGroup.POST("/other", middleware.Auth(), character.UpdateOtherSettings)
 					settingGroup.POST("/email", middleware.Auth(), character.RequestRegisterEmail)
 					settingGroup.POST("/email/unregister", middleware.Auth(), character.UnregisterEmail)
+					settingGroup.POST("/webhook-test", middleware.Auth(), character.TestWebhookUrl)
 
 					{
 						layeringGroup := settingGroup.Group("layerings")

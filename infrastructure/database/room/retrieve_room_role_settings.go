@@ -17,6 +17,7 @@ func (db *RoomRepository) RetrieveRoomRoleSettings(roomId int) (roles []model.Ro
 			rooms_roles.use_reply,
 			rooms_roles.use_secret,
 			rooms_roles.delete_other_message,
+			rooms_roles.create_children_room,
 			rooms_roles.type
 		FROM
 			rooms
@@ -46,6 +47,7 @@ func (db *RoomRepository) RetrieveRoomRoleSettings(roomId int) (roles []model.Ro
 			&role.UseReply,
 			&role.UseSecret,
 			&role.DeleteOtherMessage,
+			&role.CreateChildrenRoom,
 			&role.Type,
 		)
 		if err != nil {

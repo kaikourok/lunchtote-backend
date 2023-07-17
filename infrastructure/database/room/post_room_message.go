@@ -2,6 +2,7 @@ package room
 
 import (
 	"errors"
+	"golang.org/x/exp/slices"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kaikourok/lunchtote-backend/entity/model"
@@ -76,6 +77,8 @@ func (db *RoomRepository) PostRoomMessage(characterId int, message *model.RoomPo
 				replyable = isFollower
 			case "MUTUAL_FOLLOW":
 				replyable = isFollowing && isFollower
+			case "REPLY":
+				replyable = slices.Contains(relates, int32(characterId))
 			case "ALL":
 				replyable = true
 			default:

@@ -1,0 +1,1 @@
+ALTER TYPE relation_permission ADD VALUE 'REPLY';

@@ -208,6 +208,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					controlGroup.GET("/members", middleware.Auth(), room.RetrieveRoomMembers)
 					controlGroup.GET("/invite", middleware.Auth(), room.RetrieveRoomInviteStates)
 					controlGroup.GET("/ban", middleware.Auth(), room.RetrieveRoomBanStates)
+					controlGroup.POST("/general", middleware.Auth(), room.UpdateRoomSettings)
 					controlGroup.POST("/grant-role", middleware.Auth(), room.GrantRoomRole)
 					controlGroup.POST("/revoke-role", middleware.Auth(), room.RevokeRoomRole)
 					controlGroup.POST("/invite", middleware.Auth(), room.InviteCharacterToRoom)

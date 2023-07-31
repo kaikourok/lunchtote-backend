@@ -42,6 +42,7 @@ type roomRepository interface {
 	// 設定関連
 	RetrieveRoomRoleSettings(roomId int) (roles []model.RoomRole, master int, err error)
 	RetrieveRoomGeneralSettings(roomId int) (room *model.Room, masterCharacter int, err error)
+	UpdateRoomSettings(characterId, roomId int, room *model.Room) error
 
 	// メンバー関連
 	RetrieveRoomMembers(userId, roomId int) (members *[]model.RomeMemberWithRoles, err error)

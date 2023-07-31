@@ -182,6 +182,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 			roomsGroup.GET("/messages", middleware.Auth(), room.RetrieveRoomMessages)
 			roomsGroup.GET("/message-edit-data", middleware.Auth(), room.RetrieveRoomMessageEditRequiredData)
 			roomsGroup.POST("/search", middleware.Auth(), room.SearchRooms)
+			roomsGroup.POST("/messages/delete", middleware.Auth(), room.DeleteRoomMessage)
 
 			{
 				fetchConfigGroup := roomsGroup.Group("fetch-configs")
@@ -208,6 +209,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 					controlGroup.GET("/members", middleware.Auth(), room.RetrieveRoomMembers)
 					controlGroup.GET("/invite", middleware.Auth(), room.RetrieveRoomInviteStates)
 					controlGroup.GET("/ban", middleware.Auth(), room.RetrieveRoomBanStates)
+					controlGroup.POST("/general", middleware.Auth(), room.UpdateRoomSettings)
 					controlGroup.POST("/grant-role", middleware.Auth(), room.GrantRoomRole)
 					controlGroup.POST("/revoke-role", middleware.Auth(), room.RevokeRoomRole)
 					controlGroup.POST("/invite", middleware.Auth(), room.InviteCharacterToRoom)

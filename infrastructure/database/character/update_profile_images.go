@@ -9,7 +9,7 @@ func (db *CharacterRepository) UpdateProfileImages(id int, images *[]model.Profi
 	return db.ExecTx(func(tx *sqlx.Tx) error {
 		_, err := tx.Exec(`
 			DELETE FROM
-				characters_icons
+				characters_profile_images
 			WHERE
 				character = $1;
 		`, id)

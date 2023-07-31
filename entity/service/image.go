@@ -13,6 +13,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nfnt/resize"
+
+	_ "image/gif"
+	_ "image/jpeg"
 )
 
 type ImageTypeId string

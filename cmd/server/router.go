@@ -182,6 +182,7 @@ func NewRouter(registry registry.Registry) *gin.Engine {
 			roomsGroup.GET("/messages", middleware.Auth(), room.RetrieveRoomMessages)
 			roomsGroup.GET("/message-edit-data", middleware.Auth(), room.RetrieveRoomMessageEditRequiredData)
 			roomsGroup.POST("/search", middleware.Auth(), room.SearchRooms)
+			roomsGroup.POST("/messages/delete", middleware.Auth(), room.DeleteRoomMessage)
 
 			{
 				fetchConfigGroup := roomsGroup.Group("fetch-configs")

@@ -15,6 +15,8 @@ type roomRepository interface {
 	RetrieveRoomMessages(characterId int, options *model.RoomMessageRetrieveSettings) (messages *[]model.RoomMessage, isContinueFollowing, isContinuePrevious *bool, err error)
 	RetrieveRoomDetailData(characterId int, roomId int) (room *model.RoomDetailData, err error)
 	PostRoomMessage(characterId int, message *model.RoomPostMessage, uploadPath string) (messageId int, err error)
+	DeleteRoomMessage(messageId int) error
+	RetrieveRoomMessageRelatedData(messageId int) (roomId, senderId int, err error)
 
 	// 通知関連
 	NotificateRoomMessage(messageId int) (dto *model.RoomNotificationRelatedData, err error)

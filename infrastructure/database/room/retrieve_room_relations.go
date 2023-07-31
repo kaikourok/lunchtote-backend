@@ -14,6 +14,17 @@ func (db *RoomRepository) RetrieveRoomRelations(roomId int) (room *model.RoomRel
 				rooms
 			WHERE
 				id = $1
+		), parent_room_children_referable AS (
+			SELECT 
+				EXISTS (
+					SELECT
+						*
+					FROM
+						rooms
+					WHERE
+						id = (SELECT belong FROM room) AND
+						children_referable = true
+				)
 		), results AS (
 			SELECT
 				'parent' AS type,
@@ -50,7 +61,9 @@ func (db *RoomRepository) RetrieveRoomRelations(roomId int) (room *model.RoomRel
 			FROM
 				rooms
 			WHERE
+				(SELECT * FROM parent_room_children_referable) = true AND
 				id != $1 AND
+				deleted_at IS NULL AND
 				belong = (SELECT belong FROM room)
 
 			UNION ALL
@@ -62,7 +75,8 @@ func (db *RoomRepository) RetrieveRoomRelations(roomId int) (room *model.RoomRel
 			FROM
 				rooms
 			WHERE
-				belong = $1
+				belong = $1 AND
+				deleted_at IS NULL
 		)
 			
 		SELECT

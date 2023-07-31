@@ -182,6 +182,21 @@ func replaceImageRightTag(target string, uploadPath string) (result string, foun
 	return
 }
 
+func replaceBigImageCenterTag(target string, uploadPath string) (result string, found bool) {
+	result, found = replaceImageTag(target, uploadPath, "[img-b]", "[/img-b]", "full-image")
+	return
+}
+
+func replaceBigImageLeftTag(target string, uploadPath string) (result string, found bool) {
+	result, found = replaceImageTag(target, uploadPath, "[img-lb]", "[/img-lb]", "full-image full-image-left")
+	return
+}
+
+func replaceBigImageRightTag(target string, uploadPath string) (result string, found bool) {
+	result, found = replaceImageTag(target, uploadPath, "[img-rb]", "[/img-rb]", "full-image full-image-right")
+	return
+}
+
 func replaceImageTagAll(target string, uploadPath string) string {
 	result := target
 	var found bool
@@ -210,6 +225,34 @@ func replaceImageTagAll(target string, uploadPath string) string {
 	return result
 }
 
+func replaceBigImageTagAll(target string, uploadPath string) string {
+	result := target
+	var found bool
+
+	for {
+		result, found = replaceBigImageCenterTag(result, uploadPath)
+		if !found {
+			break
+		}
+	}
+
+	for {
+		result, found = replaceBigImageLeftTag(result, uploadPath)
+		if !found {
+			break
+		}
+	}
+
+	for {
+		result, found = replaceBigImageRightTag(result, uploadPath)
+		if !found {
+			break
+		}
+	}
+
+	return result
+}
+
 /*-------------------------------------------------------------------------------------------------
 	MessageTag
 -------------------------------------------------------------------------------------------------*/
@@ -227,6 +270,7 @@ func replaceMessageTag(target string, uploadPath string) (result string, found b
 		if index == -1 {
 			break
 		}
+		sp = index
 
 		lines := strings.Split(inner, "<br>")
 		var startEmptyLineCount, endEmptyLineCount int
@@ -258,7 +302,8 @@ func replaceMessageTag(target string, uploadPath string) (result string, found b
 		icon := ""
 		added := false
 
-		for _, line := range lines {
+		for i := startEmptyLineCount; i < len(lines)-endEmptyLineCount; i++ {
+			line := lines[i]
 			if added {
 				b.WriteString("<br>")
 			}
@@ -272,7 +317,7 @@ func replaceMessageTag(target string, uploadPath string) (result string, found b
 				parsed := strings.TrimSpace(line[len(iconStartTag) : len(line)-len(iconEndTag)])
 
 				if isImagePath(parsed, uploadPath) {
-					icon = `<div class="message-icon-wrapper"><img class="message-icon" src="` + icon + `"></div>`
+					icon = `<div class="message-icon-wrapper"><img class="message-icon" src="` + uploadPath + parsed + `"></div>`
 					continue
 				}
 			}
@@ -286,15 +331,19 @@ func replaceMessageTag(target string, uploadPath string) (result string, found b
 
 		resultBuilder.WriteString(trimEnd(before, "<br>"))
 		resultBuilder.WriteString(`<section class="message">`)
-		resultBuilder.WriteString(icon)
+		if icon != "" {
+			resultBuilder.WriteString(icon)
+		} else {
+			resultBuilder.WriteString(`<div class="message-icon-wrapper"><div class="message-icon-noimage"></div></div>`)
+		}
 		resultBuilder.WriteString(`<div class="message-content">`)
 		resultBuilder.WriteString(name)
-		resultBuilder.WriteString(`<div class="">`)
+		resultBuilder.WriteString(`<div class="message-body">`)
 		resultBuilder.WriteString(b.String())
 		resultBuilder.WriteString(`</div>`)
 		resultBuilder.WriteString(`</div>`)
 		resultBuilder.WriteString(`</section>`)
-		resultBuilder.WriteString(trimStart(after+target[sp:], "<br>"))
+		resultBuilder.WriteString(trimStart(after, "<br>"))
 
 		return resultBuilder.String(), true
 	}
@@ -449,6 +498,7 @@ func StylizeMessage(message string, uploadPath string) string {
 func StylizeTextEntry(profile string, uploadPath string) string {
 	s := stylizeBasic(profile, uploadPath)
 	s = hrRegex.ReplaceAllString(s, `<hr class="message-hr">`)
+	s = replaceBigImageTagAll(s, uploadPath)
 	s = replaceMessageTagAll(s, uploadPath)
 	return s
 }

@@ -18,8 +18,9 @@ func (u *CharacterController) RetrieveProfile(c *gin.Context) {
 	}
 
 	var characterId *int
-	if session.Get("cid") == nil {
-		*characterId = session.Get("cid").(int)
+	if session.Get("cid") != nil {
+		cid := session.Get("cid").(int)
+		characterId = &cid
 	}
 
 	profile, err := u.usecase.RetrieveProfile(characterId, targetId)

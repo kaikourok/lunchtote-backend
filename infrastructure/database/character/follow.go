@@ -25,8 +25,8 @@ func (db *CharacterRepository) Follow(userId, targetId int) (userName string, we
 			&follow,
 			&block,
 			&blocked,
-			&notificationFollowed,
 			&targetExists,
+			&notificationFollowed,
 			&userNickname,
 			&targetWebhook,
 		)

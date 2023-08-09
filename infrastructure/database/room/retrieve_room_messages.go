@@ -82,6 +82,7 @@ func (db *RoomRepository) RetrieveRoomMessages(characterId int, options *model.R
 						WHEN 'FOLLOW'        THEN messages.character = :user_id OR  EXISTS (SELECT * FROM follower_list WHERE character = messages.character)
 						WHEN 'FOLLOWED'      THEN messages.character = :user_id OR  EXISTS (SELECT * FROM follow_list   WHERE character = messages.character)
 						WHEN 'MUTUAL_FOLLOW' THEN messages.character = :user_id OR (EXISTS (SELECT * FROM follower_list WHERE character = messages.character) AND EXISTS (SELECT * FROM follow_list WHERE character = messages.character))
+						WHEN 'REPLY'         THEN messages.character = :user_id OR  :user_id in (SELECT character from rooms_messages_recipients where messages.id = rooms_messages_recipients.message)
 						WHEN 'ALL'           THEN true
           END
 				),

@@ -131,19 +131,21 @@ func (db *RoomRepository) JoinToRoom(targetId, roomId int) (room *model.RoomOver
 			inserters = append(inserters, inserter)
 		}
 
-		_, err = tx.NamedExec(`
-			INSERT INTO notifications_new_member_data (
-				notification,
-				room,
-				character
-			) VALUES (
-				:notification_id,
-				:room_id,
-				:character_id
-			)
-		`, inserters)
-		if err != nil {
-			return err
+		if 0 < len(inserters) {
+			_, err = tx.NamedExec(`
+				INSERT INTO notifications_new_member_data (
+					notification,
+					room,
+					character
+				) VALUES (
+					:notification_id,
+					:room_id,
+					:character_id
+				)
+			`, inserters)
+			if err != nil {
+				return err
+			}
 		}
 
 		_, err = tx.Exec(`
